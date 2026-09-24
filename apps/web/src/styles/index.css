@@ -1,0 +1,469 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --canvas: #f2f0e9;
+  --panel: #faf9f5;
+  --panel-strong: #ffffff;
+  --ink: #17201e;
+  --muted: #69736f;
+  --line: #d7d8d2;
+  --teal: #087f73;
+  --sea: #277da1;
+  --orange: #ff5a36;
+  --warning: #e7a928;
+  --critical: #d92d20;
+  color: var(--ink);
+  background: var(--canvas);
+  font-family: Inter, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    linear-gradient(rgba(8, 127, 115, 0.045) 1px, transparent 1px) 0 0 / 42px 42px,
+    linear-gradient(90deg, rgba(8, 127, 115, 0.045) 1px, transparent 1px) 0 0 / 42px 42px,
+    radial-gradient(circle at 18px 18px, rgba(39, 125, 161, 0.10) 1px, transparent 1.5px) 0 0 / 84px 84px,
+    var(--canvas);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.mono {
+  font-family: "JetBrains Mono", monospace;
+}
+
+.ops-label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.card,
+.ops-panel {
+  position: relative;
+  border: 1px solid var(--line);
+  background: rgba(250, 249, 245, 0.96);
+  border-radius: 6px;
+  box-shadow: none;
+  transition: border-color 180ms ease, background 180ms ease;
+}
+
+.ops-panel::before,
+.card::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: -1px;
+  width: 14px;
+  height: 14px;
+  border-left: 2px solid rgba(8, 127, 115, 0.62);
+  border-top: 2px solid rgba(8, 127, 115, 0.62);
+  pointer-events: none;
+}
+
+.ops-panel:hover,
+.card:hover {
+  border-color: rgba(8, 127, 115, 0.42);
+}
+
+.cut-corner {
+  clip-path: polygon(0 0, calc(100% - 13px) 0, 100% 13px, 100% 100%, 0 100%);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  padding: 9px 13px;
+  color: var(--ink);
+  background: var(--panel);
+  font-weight: 800;
+  transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+}
+
+.btn:hover {
+  border-color: var(--teal);
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+  transform: none;
+}
+
+.btn-primary {
+  border-color: #066b61;
+  background: var(--teal);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #066f66;
+}
+
+.btn-danger {
+  border-color: #bd2419;
+  background: var(--critical);
+  color: #fff;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #12a66a;
+  box-shadow: 0 0 0 4px rgba(18, 166, 106, 0.16);
+  animation: status-pulse 1800ms ease-in-out infinite;
+}
+
+.qutqar-rail {
+  background:
+    linear-gradient(180deg, rgba(250, 249, 245, 0.96), rgba(242, 240, 233, 0.96)),
+    repeating-linear-gradient(0deg, transparent 0 31px, rgba(8, 127, 115, 0.06) 32px);
+}
+
+.qutqar-topbar {
+  background: rgba(250, 249, 245, 0.94);
+  backdrop-filter: blur(12px);
+}
+
+.qutqar-map-shell {
+  position: relative;
+  min-height: calc(100vh - 98px);
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(115deg, rgba(39, 125, 161, 0.18) 0 42%, transparent 42%),
+    linear-gradient(90deg, rgba(8, 127, 115, 0.06) 1px, transparent 1px) 0 0 / 56px 56px,
+    linear-gradient(rgba(8, 127, 115, 0.06) 1px, transparent 1px) 0 0 / 56px 56px,
+    #dfe6df;
+  overflow: hidden;
+}
+
+.qutqar-map-shell::after {
+  content: "SEC / AKT-07    CASPIAN COASTAL GRID    DATUM WGS84";
+  position: absolute;
+  left: 92px;
+  bottom: 112px;
+  z-index: 410;
+  color: rgba(23, 32, 30, 0.38);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  pointer-events: none;
+}
+
+.qutqar-map-shell .leaflet-container {
+  border-radius: 0;
+}
+
+.map-overlay {
+  position: absolute;
+  z-index: 450;
+  border: 1px solid rgba(23, 32, 30, 0.18);
+  background: rgba(250, 249, 245, 0.92);
+  backdrop-filter: blur(10px);
+  border-radius: 6px;
+}
+
+.telemetry-strip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(86px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.telemetry-cell {
+  background: rgba(250, 249, 245, 0.96);
+  padding: 9px 11px;
+}
+
+.telemetry-value {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.drone-marker,
+.pulse-marker,
+.rescuer-marker,
+.sighting-marker {
+  position: relative;
+}
+
+.q-marker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.q-marker span {
+  border: 1px solid rgba(23, 32, 30, 0.18);
+  background: rgba(250, 249, 245, 0.88);
+  padding: 2px 5px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--ink);
+  box-shadow: 0 2px 8px rgba(23, 32, 30, 0.10);
+}
+
+.drone-marker {
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 22px solid var(--teal);
+  filter: drop-shadow(0 0 0 #fff) drop-shadow(0 3px 4px rgba(23, 32, 30, 0.25));
+  transform-origin: 50% 60%;
+  animation: marker-float 2200ms ease-in-out infinite;
+}
+
+.pulse-marker {
+  width: 24px;
+  height: 24px;
+}
+
+.pulse-marker::before,
+.pulse-marker::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border: 2px solid var(--critical);
+  border-radius: 50%;
+  background:
+    linear-gradient(var(--critical), var(--critical)) center / 15px 2px no-repeat,
+    linear-gradient(var(--critical), var(--critical)) center / 2px 15px no-repeat;
+}
+
+.pulse-marker::after {
+  inset: -5px;
+  border-color: rgba(217, 45, 32, 0.24);
+  background: transparent;
+  animation: incident-pulse 1400ms ease-in-out infinite;
+}
+
+.rescuer-marker {
+  width: 18px;
+  height: 18px;
+  transform: rotate(45deg);
+  background: #f7fff8;
+  border: 3px solid #159462;
+}
+
+.rescuer-marker::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  background: #159462;
+}
+
+.sighting-marker {
+  width: 15px;
+  height: 15px;
+  border: 2px dashed #6f5cc2;
+  background: rgba(111, 92, 194, 0.16);
+  border-radius: 50%;
+}
+
+.leaflet-container {
+  width: 100%;
+  min-height: 100%;
+  border-radius: 0;
+  font-family: Inter, sans-serif;
+  background:
+    radial-gradient(circle at 34% 46%, rgba(255, 90, 54, 0.16) 0 3px, transparent 4px),
+    radial-gradient(circle at 60% 52%, rgba(8, 127, 115, 0.16) 0 3px, transparent 4px),
+    linear-gradient(120deg, rgba(39, 125, 161, 0.18) 0 44%, rgba(250, 249, 245, 0.42) 44% 100%),
+    linear-gradient(90deg, rgba(23, 32, 30, 0.07) 1px, transparent 1px) 0 0 / 72px 72px,
+    linear-gradient(rgba(23, 32, 30, 0.07) 1px, transparent 1px) 0 0 / 72px 72px,
+    #dce6dd;
+}
+
+.leaflet-control-zoom a {
+  border-radius: 0 !important;
+  color: var(--ink) !important;
+}
+
+.gateway-shell {
+  animation: fade-up 420ms ease both;
+}
+
+.gateway-hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(8, 127, 115, 0.09) 1px, transparent 1px) 0 0 / 28px 28px,
+    linear-gradient(rgba(8, 127, 115, 0.09) 1px, transparent 1px) 0 0 / 28px 28px,
+    #e9ebe2;
+}
+
+.gateway-hero::after {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  border: 1px solid rgba(8, 127, 115, 0.16);
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+  pointer-events: none;
+}
+
+.drone-schematic {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 230px;
+  border: 1px solid rgba(8, 127, 115, 0.22);
+  background: rgba(250, 249, 245, 0.62);
+}
+
+.drone-schematic::before {
+  content: "";
+  width: 118px;
+  height: 118px;
+  border: 1px solid rgba(8, 127, 115, 0.32);
+  border-radius: 50%;
+  background:
+    linear-gradient(var(--teal), var(--teal)) center / 96px 2px no-repeat,
+    linear-gradient(var(--teal), var(--teal)) center / 2px 96px no-repeat;
+}
+
+.scan-line {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 20%;
+  height: 2px;
+  background: var(--orange);
+  animation: scan-line 2100ms ease-in-out infinite;
+}
+
+.float-soft {
+  animation: float-soft 3200ms ease-in-out infinite;
+}
+
+.spin-soft {
+  animation: spin-soft 850ms linear infinite;
+}
+
+.progress-flow {
+  transition: width 360ms ease;
+  background: var(--teal);
+}
+
+.success-pop {
+  animation: success-pop 520ms cubic-bezier(0.2, 1.35, 0.38, 1) both;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .fade-up {
+    animation: fade-up 420ms ease both;
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes status-pulse {
+    0%, 100% {
+      box-shadow: 0 0 0 4px rgba(18, 166, 106, 0.14);
+    }
+    50% {
+      box-shadow: 0 0 0 8px rgba(18, 166, 106, 0.08);
+    }
+  }
+
+  @keyframes incident-pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.22);
+      opacity: 0.7;
+    }
+  }
+
+  @keyframes marker-float {
+    0%, 100% {
+      transform: translateY(0) rotate(22deg);
+    }
+    50% {
+      transform: translateY(-2px) rotate(22deg);
+    }
+  }
+
+  @keyframes float-soft {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+
+  @keyframes scan-line {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(145px);
+    }
+  }
+
+  @keyframes spin-soft {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes success-pop {
+    from {
+      opacity: 0;
+      transform: scale(0.82);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .telemetry-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .qutqar-map-shell {
+    min-height: 760px;
+  }
+}

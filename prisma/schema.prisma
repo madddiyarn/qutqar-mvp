@@ -1,0 +1,489 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum DroneStatus {
+  ONLINE
+  CHARGING
+  OFFLINE
+  MAINTENANCE
+}
+
+enum IncidentType {
+  POTENTIAL_DROWNING
+  SAFE_ZONE_VIOLATION
+  RESTRICTED_ZONE
+  PERSON_OVERBOARD
+  CHILD_RISK
+  FISHERMAN_SAFETY
+  SEARCH_TARGET
+}
+
+enum IncidentStatus {
+  NEW
+  CONFIRMED
+  DISPATCHED
+  RESCUER_ACCEPTED
+  ARRIVED
+  RESOLVED
+  FALSE_ALARM
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum PatrolStatus {
+  PLANNED
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+enum SearchStatus {
+  PLANNED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum CandidateStatus {
+  NEW
+  POSSIBLE_TARGET
+  REJECTED
+}
+
+enum RescuerStatus {
+  AVAILABLE
+  DISPATCHED
+  BUSY
+  OFFLINE
+}
+
+enum AssignmentStatus {
+  SENT
+  ACCEPTED
+  ARRIVED
+  COMPLETED
+}
+
+enum ZoneType {
+  SAFE
+  RESTRICTED
+  SEARCH
+}
+
+enum ConnectionMethod {
+  QR
+  DJI_APP
+  SERIAL
+}
+
+enum ConnectionStatus {
+  CONNECTING
+  CONNECTED
+  DISCONNECTED
+}
+
+enum PrintJobStatus {
+  QUEUED
+  PRINTING
+  PRINTED
+  FAILED
+}
+
+enum ResponseServiceType {
+  WATER_RESCUE
+  SEARCH_RESCUE
+  FIRE_SERVICE
+  ECO_SERVICE
+  TECHNICAL_SERVICE
+}
+
+enum ResponseServiceStatus {
+  AVAILABLE
+  BUSY
+  OFFLINE
+}
+
+enum DataSourceKind {
+  LIVE
+  CACHED
+  SIMULATED
+  MOCK
+}
+
+enum OfflineSyncStatus {
+  QUEUED
+  SYNCING
+  SYNCED
+  FAILED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
+model Drone {
+  id           String            @id @default(cuid())
+  serialNumber String            @unique
+  name         String
+  model        String
+  status       DroneStatus       @default(OFFLINE)
+  battery      Int
+  latitude     Float
+  longitude    Float
+  altitude     Float
+  station      String?
+  gpsStatus    String            @default("READY")
+  cameraStatus String            @default("ONLINE")
+  mission      String?
+  lastSeenAt   DateTime          @default(now())
+  createdAt    DateTime          @default(now())
+  telemetry    DroneTelemetry[]
+  incidents    Incident[]
+  patrols      Patrol[]
+  detections   Detection[]
+  connections  DroneConnection[]
+  recordings   Recording[]
+}
+
+model DroneConnection {
+  id             String           @id @default(cuid())
+  droneId        String
+  method         ConnectionMethod
+  status         ConnectionStatus @default(CONNECTED)
+  isMock         Boolean          @default(true)
+  selectedModel  String
+  serialNumber   String
+  connectedAt    DateTime         @default(now())
+  disconnectedAt DateTime?
+  metadata       Json
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  drone          Drone            @relation(fields: [droneId], references: [id], onDelete: Cascade)
+
+  @@index([status, connectedAt])
+}
+
+model DroneTelemetry {
+  id        String   @id @default(cuid())
+  droneId   String
+  battery   Int
+  latitude  Float
+  longitude Float
+  altitude  Float
+  speed     Float
+  heading   Int
+  createdAt DateTime @default(now())
+  drone     Drone    @relation(fields: [droneId], references: [id], onDelete: Cascade)
+
+  @@index([droneId, createdAt])
+}
+
+model Incident {
+  id               String             @id @default(cuid())
+  publicId         String             @unique
+  type             IncidentType
+  status           IncidentStatus     @default(NEW)
+  severity         Severity
+  confidence       Int
+  latitude         Float
+  longitude        Float
+  droneId          String?
+  patrolId         String?
+  searchMissionId  String?
+  detectedAt       DateTime           @default(now())
+  confirmedAt      DateTime?
+  resolvedAt       DateTime?
+  createdAt        DateTime           @default(now())
+  drone            Drone?             @relation(fields: [droneId], references: [id])
+  patrol           Patrol?            @relation(fields: [patrolId], references: [id])
+  searchMission    SearchMission?     @relation(fields: [searchMissionId], references: [id])
+  events           IncidentEvent[]
+  assignments      RescueAssignment[]
+  evidence         Evidence[]
+  printJobs        PrintJob[]
+  driftPredictions DriftPrediction[]
+
+  @@index([status, type, createdAt])
+}
+
+model IncidentEvent {
+  id         String   @id @default(cuid())
+  incidentId String
+  type       String
+  message    String
+  createdAt  DateTime @default(now())
+  incident   Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@index([incidentId, createdAt])
+}
+
+model Patrol {
+  id          String       @id @default(cuid())
+  publicId    String       @unique
+  droneId     String
+  area        String
+  missionType String
+  modules     Json
+  status      PatrolStatus @default(PLANNED)
+  route       Json
+  progress    Int          @default(0)
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime     @default(now())
+  drone       Drone        @relation(fields: [droneId], references: [id])
+  incidents   Incident[]
+  detections  Detection[]
+}
+
+model SearchMission {
+  id               String            @id @default(cuid())
+  publicId         String            @unique
+  status           SearchStatus      @default(ACTIVE)
+  approximateTime  DateTime
+  description      String
+  distinctiveItems Json
+  centerLatitude   Float
+  centerLongitude  Float
+  radius           Int
+  areaChecked      Int               @default(0)
+  createdAt        DateTime          @default(now())
+  startedAt        DateTime?
+  completedAt      DateTime?
+  candidates       SearchCandidate[]
+  incidents        Incident[]
+  sightings        TargetSighting[]
+  driftPredictions DriftPrediction[]
+}
+
+model SearchCandidate {
+  id               String          @id @default(cuid())
+  searchMissionId  String
+  confidence       Int
+  latitude         Float
+  longitude        Float
+  imageUrl         String
+  visualSimilarity Int             @default(0)
+  matchedItems     Json
+  status           CandidateStatus @default(NEW)
+  detectedAt       DateTime        @default(now())
+  searchMission    SearchMission   @relation(fields: [searchMissionId], references: [id], onDelete: Cascade)
+}
+
+model TargetSighting {
+  id              String         @id @default(cuid())
+  searchMissionId String?
+  sourceType      String
+  sourceId        String?
+  latitude        Float
+  longitude       Float
+  timestamp       DateTime
+  confidence      Int
+  metadata        Json
+  searchMission   SearchMission? @relation(fields: [searchMissionId], references: [id], onDelete: Cascade)
+
+  @@index([searchMissionId, timestamp])
+}
+
+model Detection {
+  id         String   @id @default(cuid())
+  type       String
+  confidence Int
+  latitude   Float
+  longitude  Float
+  metadata   Json
+  feedback   String?
+  droneId    String?
+  patrolId   String?
+  createdAt  DateTime @default(now())
+  drone      Drone?   @relation(fields: [droneId], references: [id])
+  patrol     Patrol?  @relation(fields: [patrolId], references: [id])
+}
+
+model Zone {
+  id        String   @id @default(cuid())
+  name      String
+  type      ZoneType
+  polygon   Json
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Rescuer {
+  id          String             @id @default(cuid())
+  name        String
+  callSign    String             @unique
+  status      RescuerStatus      @default(AVAILABLE)
+  latitude    Float
+  longitude   Float
+  assignments RescueAssignment[]
+}
+
+model RescueAssignment {
+  id          String           @id @default(cuid())
+  incidentId  String
+  rescuerId   String
+  status      AssignmentStatus @default(SENT)
+  acceptedAt  DateTime?
+  arrivedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime         @default(now())
+  incident    Incident         @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  rescuer     Rescuer          @relation(fields: [rescuerId], references: [id])
+}
+
+model Recording {
+  id        String            @id @default(cuid())
+  publicId  String            @unique
+  droneId   String
+  mission   String
+  videoUrl  String
+  startedAt DateTime
+  endedAt   DateTime
+  metadata  Json
+  createdAt DateTime          @default(now())
+  drone     Drone             @relation(fields: [droneId], references: [id], onDelete: Cascade)
+  events    RecordingEvent[]
+  changes   ChangeDetection[]
+}
+
+model RecordingEvent {
+  id          String    @id @default(cuid())
+  recordingId String
+  timestamp   DateTime
+  offsetSec   Int
+  type        String
+  label       String
+  latitude    Float?
+  longitude   Float?
+  metadata    Json
+  recording   Recording @relation(fields: [recordingId], references: [id], onDelete: Cascade)
+
+  @@index([recordingId, offsetSec])
+}
+
+model ChangeDetection {
+  id            String    @id @default(cuid())
+  recordingId   String
+  compareLabelA String
+  compareLabelB String
+  type          String
+  confidence    Int
+  latitude      Float
+  longitude     Float
+  metadata      Json
+  createdAt     DateTime  @default(now())
+  recording     Recording @relation(fields: [recordingId], references: [id], onDelete: Cascade)
+}
+
+model Evidence {
+  id         String          @id @default(cuid())
+  publicId   String          @unique
+  incidentId String
+  status     String          @default("READY")
+  reportHtml String
+  qrPayload  String
+  metadata   Json
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  incident   Incident        @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  assets     EvidenceAsset[]
+}
+
+model EvidenceAsset {
+  id         String   @id @default(cuid())
+  evidenceId String
+  type       String
+  label      String
+  url        String
+  metadata   Json
+  createdAt  DateTime @default(now())
+  evidence   Evidence @relation(fields: [evidenceId], references: [id], onDelete: Cascade)
+}
+
+model PrintJob {
+  id         String         @id @default(cuid())
+  incidentId String
+  stationId  String?
+  status     PrintJobStatus @default(QUEUED)
+  reportUrl  String?
+  createdAt  DateTime       @default(now())
+  printedAt  DateTime?
+  metadata   Json
+  incident   Incident       @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@index([incidentId, status])
+}
+
+model ResponseService {
+  id        String                @id @default(cuid())
+  name      String
+  type      ResponseServiceType
+  status    ResponseServiceStatus @default(AVAILABLE)
+  latitude  Float
+  longitude Float
+  metadata  Json
+  createdAt DateTime              @default(now())
+}
+
+model EnvironmentalSnapshot {
+  id               String            @id @default(cuid())
+  sourceKind       DataSourceKind    @default(SIMULATED)
+  windSpeed        Float
+  windDirection    Int
+  temperature      Float
+  visibility       Float
+  precipitation    Float
+  weatherStatus    String
+  waveHeight       Float
+  wavePeriod       Float
+  waveDirection    Int
+  currentSpeed     Float
+  currentDirection Int
+  droneCondition   String
+  rescueCondition  String
+  explanation      String
+  validAt          DateTime
+  createdAt        DateTime          @default(now())
+  driftPredictions DriftPrediction[]
+}
+
+model DriftPrediction {
+  id                      String                @id @default(cuid())
+  incidentId              String?
+  searchMissionId         String?
+  environmentalSnapshotId String
+  originLatitude          Float
+  originLongitude         Float
+  elapsedMinutes          Int
+  areas                   Json
+  metadata                Json
+  createdAt               DateTime              @default(now())
+  incident                Incident?             @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  searchMission           SearchMission?        @relation(fields: [searchMissionId], references: [id], onDelete: Cascade)
+  environmentalSnapshot   EnvironmentalSnapshot @relation(fields: [environmentalSnapshotId], references: [id], onDelete: Cascade)
+}
+
+model OfflineSyncEvent {
+  id             String            @id @default(cuid())
+  idempotencyKey String            @unique
+  type           String
+  status         OfflineSyncStatus @default(QUEUED)
+  payload        Json
+  createdAt      DateTime          @default(now())
+  syncedAt       DateTime?
+}
