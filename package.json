@@ -8,6 +8,7 @@
     "dev:api": "tsx apps/api/src/index.ts",
     "dev:web": "vite --config apps/web/vite.config.ts --host 0.0.0.0",
     "build": "npm run build:api && npm run build:web",
+    "build:vercel-api": "esbuild apps/api/src/index.ts --bundle --platform=node --format=esm --packages=external --outfile='api/[...path].js'",
     "build:api": "tsc -p apps/api/tsconfig.json",
     "build:web": "vite build --config apps/web/vite.config.ts",
     "check": "npm run build",
@@ -49,6 +50,7 @@
     "@types/node": "^24.5.2",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
+    "esbuild": "^0.28.2",
     "typescript": "^5.9.2",
     "vite": "^7.1.7"
   },
