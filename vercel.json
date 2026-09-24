@@ -4,6 +4,11 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist/web",
   "framework": "vite",
+  "functions": {
+    "api/[...path].js": {
+      "includeFiles": "dist/api/**"
+    }
+  },
   "rewrites": [
     {
       "source": "/((?!api/.*).*)",
