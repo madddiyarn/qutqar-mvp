@@ -1,20 +1,12 @@
 import { CheckCircle2, Drone, Loader2, QrCode, Radio, ScanLine, Unplug } from "lucide-react";
 import { useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import { api } from "../services/api";
 import type { DroneConnection } from "../types/domain";
 
 const models = ["DJI Avata 2", "DJI Mavic 3 Enterprise", "DJI Matrice 30", "Other / Demo Drone"];
 const djiSteps = ["Поиск устройства...", "Устройство найдено", "Установка соединения", "Получение телеметрии", "Синхронизация камеры", "Подключено"];
 const qrSteps = ["QR отсканирован", "Проверка устройства", "Дрон найден", "Подключено"];
-const qrCells = Array.from({ length: 121 }, (_, index) => {
-  const row = Math.floor(index / 11);
-  const col = index % 11;
-  const finder =
-    (row < 3 && col < 3) ||
-    (row < 3 && col > 7) ||
-    (row > 7 && col < 3);
-  return finder || ((row * 7 + col * 5 + index) % 4 === 0);
-});
 
 type ConnectionMethod = "QR" | "DJI_APP" | "SERIAL";
 type GatewayMode = "idle" | "qr-ready" | "connecting";
@@ -28,6 +20,14 @@ export function ConnectionGateway({ onConnected }: { onConnected: (connection: D
   const [connected, setConnected] = useState<DroneConnection | null>(null);
   const [error, setError] = useState<string | null>(null);
   const busy = mode === "connecting";
+  const qrPayload = JSON.stringify({
+    app: "QUTQAR",
+    type: "DRONE_INIT",
+    model,
+    serialNumber: serialNumber.trim() || "DEMO-QR",
+    station: "AKTAU_COASTAL_OPS",
+    issuedAt: new Date(2026, 8, 24, 15, 20, 42).toISOString()
+  });
 
   async function connect(nextMethod: ConnectionMethod) {
     setError(null);
@@ -127,13 +127,19 @@ export function ConnectionGateway({ onConnected }: { onConnected: (connection: D
                   <h3 className="font-extrabold">QR для подключения</h3>
                   <p className="mt-1 text-sm text-muted">Наведите demo scanner на QR. Загрузка начнётся только после сканирования.</p>
                 </div>
-                <span className="ops-label text-[#E7A928]">MOCK QR</span>
+                <span className="ops-label text-[#087F73]">VALID QR</span>
               </div>
-              <div className="mx-auto mt-4 grid w-44 grid-cols-11 gap-1 border border-line bg-white p-3">
-                {qrCells.map((active, index) => (
-                  <span key={index} className={`aspect-square rounded-[2px] ${active ? "bg-[#111318]" : "bg-white"}`} />
-                ))}
+              <div className="mx-auto mt-4 grid w-52 place-items-center border border-line bg-white p-4">
+                <QRCodeSVG
+                  value={qrPayload}
+                  size={176}
+                  level="M"
+                  marginSize={1}
+                  bgColor="#ffffff"
+                  fgColor="#17201E"
+                />
               </div>
+              <p className="mono mx-auto mt-3 max-w-sm break-all text-center text-[10px] font-bold text-muted">{qrPayload}</p>
               <button className="btn btn-primary mt-4 w-full" onClick={() => connect("QR")}>
                 <ScanLine size={17} /> QR отсканирован
               </button>
