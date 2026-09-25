@@ -1,0 +1,9 @@
+ALTER TABLE "User"
+ADD COLUMN "passwordHash" TEXT NOT NULL DEFAULT '',
+ADD COLUMN "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+UPDATE "User"
+SET "passwordHash" = CASE
+  WHEN "email" = 'operator@qutqar.kz' THEN '65fc349f7ead8012b8de5323e15c6e3b289517faf7098910e348453b9861573f'
+  ELSE "passwordHash"
+END;

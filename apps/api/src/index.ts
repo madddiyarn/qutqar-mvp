@@ -1,10 +1,11 @@
 import "./lib/env";
 import cors from "cors";
 import express from "express";
+import { createHash } from "node:crypto";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
 import { z } from "zod";
-import { AssignmentStatus, CandidateStatus, ConnectionMethod, ConnectionStatus, IncidentStatus, IncidentType, PatrolStatus, Prisma, RescuerStatus } from "@prisma/client";
+import { AssignmentStatus, CandidateStatus, ConnectionMethod, ConnectionStatus, DroneStatus, IncidentStatus, IncidentType, PatrolStatus, Prisma, RescuerStatus } from "@prisma/client";
 import { env } from "./lib/env";
 import { prisma } from "./lib/prisma";
 import { DemoScenario } from "./simulation/demoScenario";
@@ -20,7 +21,7 @@ const io = new Server(httpServer, {
 const demo = new DemoScenario(prisma, io);
 
 app.use(cors({ origin: "*" }));
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "50mb" }));
 
 const asyncRoute =
   (handler: express.RequestHandler): express.RequestHandler =>
@@ -30,6 +31,15 @@ const asyncRoute =
 function routeParam(value: string | string[] | undefined) {
   if (Array.isArray(value)) return value[0] ?? "";
   return value ?? "";
+}
+
+function hashPassword(password: string) {
+  return createHash("sha256").update(password).digest("hex");
+}
+
+function publicUser<T extends { passwordHash?: string }>(user: T) {
+  const { passwordHash: _passwordHash, ...safeUser } = user;
+  return safeUser;
 }
 
 async function getOverview() {
@@ -119,6 +129,187 @@ async function applyRescueAction(assignmentId: string, action: RescueAction) {
 app.get("/api/health", asyncRoute(async (_req, res) => {
   await prisma.$queryRaw`SELECT 1`;
   res.json({ ok: true, database: "connected", mocked: ["DJI", "telemetry", "GPS", "AI inference", "live stream"] });
+}));
+
+app.post("/api/auth/login", asyncRoute(async (req, res) => {
+  const input = z.object({
+    email: z.string().email(),
+    password: z.string().min(1)
+  }).parse(req.body);
+  const user = await prisma.user.findUnique({ where: { email: input.email.toLowerCase() } });
+  if (!user || user.passwordHash !== hashPassword(input.password)) {
+    res.status(401).json({ message: "Неверный email или пароль" });
+    return;
+  }
+  res.json({ user: publicUser(user) });
+}));
+
+app.get("/api/admin/snapshot", asyncRoute(async (_req, res) => {
+  const [users, drones, rescuers, recordings] = await Promise.all([
+    prisma.user.findMany({ orderBy: { createdAt: "asc" } }),
+    prisma.drone.findMany({ orderBy: { name: "asc" } }),
+    prisma.rescuer.findMany({ orderBy: { callSign: "asc" } }),
+    prisma.recording.findMany({ orderBy: { createdAt: "desc" }, include: { drone: true, events: { orderBy: { offsetSec: "asc" } }, changes: true } })
+  ]);
+  res.json({ users: users.map(publicUser), drones, rescuers, recordings });
+}));
+
+app.post("/api/admin/users", asyncRoute(async (req, res) => {
+  const input = z.object({
+    name: z.string().min(2),
+    email: z.string().email(),
+    role: z.enum(["SUPERVISOR", "CONTROLLER"]),
+    password: z.string().min(6)
+  }).parse(req.body);
+  const user = await prisma.user.create({
+    data: {
+      name: input.name,
+      email: input.email.toLowerCase(),
+      role: input.role,
+      passwordHash: hashPassword(input.password)
+    }
+  });
+  io.emit("dashboard:update");
+  res.json(publicUser(user));
+}));
+
+app.put("/api/admin/users/:id", asyncRoute(async (req, res) => {
+  const input = z.object({
+    name: z.string().min(2),
+    email: z.string().email(),
+    role: z.enum(["SUPERVISOR", "CONTROLLER"]),
+    password: z.string().min(6).optional().or(z.literal(""))
+  }).parse(req.body);
+  const data: Prisma.UserUpdateInput = {
+    name: input.name,
+    email: input.email.toLowerCase(),
+    role: input.role
+  };
+  if (input.password) data.passwordHash = hashPassword(input.password);
+  const user = await prisma.user.update({ where: { id: routeParam(req.params.id) }, data });
+  io.emit("dashboard:update");
+  res.json(publicUser(user));
+}));
+
+app.delete("/api/admin/users/:id", asyncRoute(async (req, res) => {
+  const id = routeParam(req.params.id);
+  const user = await prisma.user.findUniqueOrThrow({ where: { id } });
+  if (user.role === "CONTROLLER") {
+    const controllers = await prisma.user.count({ where: { role: "CONTROLLER" } });
+    if (controllers <= 1) {
+      res.status(400).json({ message: "Нельзя удалить последнего контроллера" });
+      return;
+    }
+  }
+  await prisma.user.delete({ where: { id } });
+  io.emit("dashboard:update");
+  res.json({ ok: true });
+}));
+
+app.post("/api/admin/drones", asyncRoute(async (req, res) => {
+  const input = z.object({
+    serialNumber: z.string().min(2),
+    name: z.string().min(2),
+    model: z.string().min(2),
+    status: z.nativeEnum(DroneStatus).default(DroneStatus.OFFLINE),
+    battery: z.number().min(0).max(100).default(100),
+    latitude: z.number(),
+    longitude: z.number(),
+    altitude: z.number().default(0),
+    station: z.string().optional(),
+    mission: z.string().optional()
+  }).parse(req.body);
+  const drone = await prisma.drone.create({ data: { ...input, gpsStatus: "READY", cameraStatus: "ONLINE" } });
+  io.emit("dashboard:update");
+  res.json(drone);
+}));
+
+app.put("/api/admin/drones/:id", asyncRoute(async (req, res) => {
+  const input = z.object({
+    serialNumber: z.string().min(2),
+    name: z.string().min(2),
+    model: z.string().min(2),
+    status: z.nativeEnum(DroneStatus),
+    battery: z.number().min(0).max(100),
+    latitude: z.number(),
+    longitude: z.number(),
+    altitude: z.number(),
+    station: z.string().optional().nullable(),
+    mission: z.string().optional().nullable()
+  }).parse(req.body);
+  const drone = await prisma.drone.update({ where: { id: routeParam(req.params.id) }, data: { ...input, lastSeenAt: new Date() } });
+  io.emit("dashboard:update");
+  res.json(drone);
+}));
+
+app.delete("/api/admin/drones/:id", asyncRoute(async (req, res) => {
+  await prisma.drone.delete({ where: { id: routeParam(req.params.id) } });
+  io.emit("dashboard:update");
+  res.json({ ok: true });
+}));
+
+app.post("/api/admin/rescuers", asyncRoute(async (req, res) => {
+  const input = z.object({
+    name: z.string().min(2),
+    callSign: z.string().min(2),
+    status: z.nativeEnum(RescuerStatus).default(RescuerStatus.AVAILABLE),
+    latitude: z.number(),
+    longitude: z.number()
+  }).parse(req.body);
+  const rescuer = await prisma.rescuer.create({ data: input });
+  io.emit("dashboard:update");
+  res.json(rescuer);
+}));
+
+app.put("/api/admin/rescuers/:id", asyncRoute(async (req, res) => {
+  const input = z.object({
+    name: z.string().min(2),
+    callSign: z.string().min(2),
+    status: z.nativeEnum(RescuerStatus),
+    latitude: z.number(),
+    longitude: z.number()
+  }).parse(req.body);
+  const rescuer = await prisma.rescuer.update({ where: { id: routeParam(req.params.id) }, data: input });
+  io.emit("dashboard:update");
+  res.json(rescuer);
+}));
+
+app.delete("/api/admin/rescuers/:id", asyncRoute(async (req, res) => {
+  await prisma.rescuer.delete({ where: { id: routeParam(req.params.id) } });
+  io.emit("dashboard:update");
+  res.json({ ok: true });
+}));
+
+app.post("/api/admin/recordings", asyncRoute(async (req, res) => {
+  const input = z.object({
+    droneId: z.string(),
+    mission: z.string().min(2),
+    videoUrl: z.string().min(4),
+    startedAt: z.string(),
+    endedAt: z.string(),
+    metadata: z.record(z.string(), z.unknown()).default({})
+  }).parse(req.body);
+  const count = await prisma.recording.count();
+  const recording = await prisma.recording.create({
+    data: {
+      publicId: `REC-${String(count + 1).padStart(4, "0")}`,
+      droneId: input.droneId,
+      mission: input.mission,
+      videoUrl: input.videoUrl,
+      startedAt: new Date(input.startedAt),
+      endedAt: new Date(input.endedAt),
+      metadata: input.metadata as Prisma.InputJsonObject
+    },
+    include: { drone: true, events: true, changes: true }
+  });
+  io.emit("dashboard:update");
+  res.json(recording);
+}));
+
+app.delete("/api/admin/recordings/:id", asyncRoute(async (req, res) => {
+  await prisma.recording.delete({ where: { id: routeParam(req.params.id) } });
+  io.emit("dashboard:update");
+  res.json({ ok: true });
 }));
 
 app.get("/api/connections/active", asyncRoute(async (_req, res) => {

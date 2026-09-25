@@ -1,10 +1,10 @@
-import { Archive, Bell, Bot, ChartNoAxesCombined, Crosshair, Drone, FileText, LifeBuoy, Map, Radio, Search, Settings, ShieldCheck, ShipWheel } from "lucide-react";
+import { Archive, Bell, Bot, ChartNoAxesCombined, Crosshair, Database, Drone, FileText, LifeBuoy, LogOut, Map, Radio, Search, Settings, ShieldCheck, ShipWheel } from "lucide-react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { useOverview } from "../hooks/useOverview";
 import { api } from "../services/api";
-import { ConnectionGateway } from "./ConnectionGateway";
 import type { DroneConnection } from "../types/domain";
+import { useAuth } from "../auth";
 
 const nav = [
   { to: "/overview", label: "Обзор", icon: Map, section: "" },
@@ -20,12 +20,14 @@ const nav = [
 ];
 
 export function Shell() {
+  const { user, logout, isController } = useAuth();
   const { data, refresh } = useOverview();
   const [connectionState, setConnectionState] = useState<DroneConnection | null | undefined>(undefined);
   const [sessionOverride, setSessionOverride] = useState<DroneConnection | null | undefined>(undefined);
   const [panelOpen, setPanelOpen] = useState(false);
   const time = useMemo(() => new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(new Date()).toUpperCase(), []);
   const activeConnection = sessionOverride !== undefined ? sessionOverride : connectionState !== undefined ? connectionState : data?.activeConnection;
+  const visibleNav = isController ? [...nav, { to: "/controller", label: "Контроллер", icon: Database, section: "ДОСТУП" }] : nav;
 
   useEffect(() => {
     let mounted = true;
@@ -41,10 +43,6 @@ export function Shell() {
     };
   }, []);
 
-  if (connectionState !== undefined && !activeConnection) {
-    return <ConnectionGateway onConnected={(connection) => { setConnectionState(connection); setSessionOverride(connection); void refresh(); }} />;
-  }
-
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[72px_1fr]">
       <aside className="qutqar-rail hidden border-r border-line px-2 py-3 lg:flex lg:flex-col">
@@ -54,7 +52,7 @@ export function Shell() {
           </div>
         </div>
         <nav className="space-y-1.5">
-          {nav.map((item) => (
+          {visibleNav.map((item) => (
             <div key={item.to}>
               {item.section && <div className="mx-auto my-3 h-px w-8 bg-line" />}
               <NavLink
@@ -75,6 +73,9 @@ export function Shell() {
           ))}
         </nav>
         <div className="mt-auto border-t border-line pt-3">
+          <button className="grid h-11 w-full place-items-center border border-transparent text-muted hover:border-line hover:bg-[#FAF9F5]" title={`${user?.name} / выйти`} onClick={logout}>
+            <LogOut size={18} />
+          </button>
           <button className="grid h-11 w-full place-items-center border border-transparent text-muted hover:border-line hover:bg-[#FAF9F5]" title="Настройки">
             <Settings size={18} />
           </button>
@@ -97,6 +98,7 @@ export function Shell() {
               <span className="mono">SEA <b className="text-ink">{data?.sea.waveHeight?.toFixed(1) ?? "..."}M</b></span>
               <span className="mono">WIND <b className="text-ink">{data?.sea.windSpeed?.toFixed(1) ?? "..."}M/S</b></span>
               <span className="mono">INC <b className="text-ink">{data?.stats.activeIncidents ?? "..."}</b></span>
+              <span className="mono">ROLE <b className="text-ink">{user?.role === "CONTROLLER" ? "CONTROL" : "WATCH"}</b></span>
               {activeConnection && (
                 <button className="btn cut-corner px-3 py-1 text-[11px]" onClick={() => setPanelOpen((value) => !value)}>
                   DRN / {activeConnection.drone.name.replace("QUTQAR-", "Q-")} · BAT {activeConnection.drone.battery}%

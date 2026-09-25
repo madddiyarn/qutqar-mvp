@@ -26,518 +26,44 @@ var init_env = __esm({
 // prisma/seed.ts
 var seed_exports = {};
 __export(seed_exports, {
-  seed: () => seed
+  seed: () => seed,
+  seedWith: () => seedWith,
+  systemUsers: () => systemUsers
 });
-import {
-  ConnectionMethod,
-  ConnectionStatus,
-  DataSourceKind as DataSourceKind2,
-  PrismaClient as PrismaClient3,
-  DroneStatus,
-  IncidentStatus as IncidentStatus2,
-  IncidentType as IncidentType3,
-  PatrolStatus,
-  PrintJobStatus,
-  RescuerStatus as RescuerStatus2,
-  ResponseServiceStatus,
-  ResponseServiceType as ResponseServiceType2,
-  Severity as Severity3,
-  ZoneType
-} from "@prisma/client";
+import { PrismaClient as PrismaClient3 } from "@prisma/client";
 import { pathToFileURL } from "node:url";
-function hoursAgo(hours) {
-  return new Date(Date.now() - hours * 60 * 60 * 1e3);
-}
-function daysAgo(days) {
-  return new Date(Date.now() - days * 24 * 60 * 60 * 1e3);
+async function seedWith(client) {
+  for (const user of systemUsers) {
+    await client.user.upsert({
+      where: { email: user.email },
+      update: user,
+      create: user
+    });
+  }
 }
 async function seed() {
-  await prisma2.user.upsert({
-    where: { email: "operator@qutqar.kz" },
-    update: {},
-    create: { name: "\u0410\u0439\u0434\u0430\u043D\u0430 \u0421\u0430\u0440\u0441\u0435\u043D\u043E\u0432\u0430", role: "\u041E\u043F\u0435\u0440\u0430\u0442\u043E\u0440 \u0441\u043C\u0435\u043D\u044B", email: "operator@qutqar.kz" }
-  });
-  const drone1 = await prisma2.drone.upsert({
-    where: { serialNumber: "AVATA2-DEMO-001" },
-    update: {
-      name: "QUTQAR-01",
-      status: DroneStatus.ONLINE,
-      battery: 87,
-      latitude: aktau.beach[0],
-      longitude: aktau.beach[1],
-      altitude: 82,
-      station: "\u0421\u043F\u0430\u0441\u0430\u0442\u0435\u043B\u044C\u043D\u0430\u044F \u0441\u0442\u0430\u043D\u0446\u0438\u044F 7\u0410",
-      mission: "\u041F\u0430\u0442\u0440\u0443\u043B\u044C \u043D\u0430\u0431\u0435\u0440\u0435\u0436\u043D\u043E\u0439"
-    },
-    create: {
-      serialNumber: "AVATA2-DEMO-001",
-      name: "QUTQAR-01",
-      model: "DJI Avata 2",
-      status: DroneStatus.ONLINE,
-      battery: 87,
-      latitude: aktau.beach[0],
-      longitude: aktau.beach[1],
-      altitude: 82,
-      station: "\u0421\u043F\u0430\u0441\u0430\u0442\u0435\u043B\u044C\u043D\u0430\u044F \u0441\u0442\u0430\u043D\u0446\u0438\u044F 7\u0410",
-      mission: "\u041F\u0430\u0442\u0440\u0443\u043B\u044C \u043D\u0430\u0431\u0435\u0440\u0435\u0436\u043D\u043E\u0439"
-    }
-  });
-  await prisma2.droneConnection.create({
-    data: {
-      droneId: drone1.id,
-      method: ConnectionMethod.DJI_APP,
-      status: ConnectionStatus.CONNECTED,
-      isMock: true,
-      selectedModel: "DJI Avata 2",
-      serialNumber: "AVATA2-DEMO-001",
-      metadata: {
-        label: "DEMO CONNECTION",
-        gps: "READY",
-        camera: "ONLINE",
-        telemetry: "ONLINE"
-      }
-    }
-  });
-  await prisma2.drone.upsert({
-    where: { serialNumber: "M3E-DEMO-002" },
-    update: {},
-    create: {
-      serialNumber: "M3E-DEMO-002",
-      name: "QUTQAR-02",
-      model: "DJI Mavic 3 Enterprise",
-      status: DroneStatus.CHARGING,
-      battery: 42,
-      latitude: aktau.station[0],
-      longitude: aktau.station[1],
-      altitude: 0,
-      station: "\u0428\u0442\u0430\u0431 \u043D\u0430\u0431\u0435\u0440\u0435\u0436\u043D\u043E\u0439",
-      mission: "\u0417\u0430\u0440\u044F\u0434\u043A\u0430"
-    }
-  });
-  await prisma2.drone.upsert({
-    where: { serialNumber: "M30-DEMO-003" },
-    update: {},
-    create: {
-      serialNumber: "M30-DEMO-003",
-      name: "QUTQAR-03",
-      model: "DJI Matrice 30",
-      status: DroneStatus.OFFLINE,
-      battery: 12,
-      latitude: aktau.port[0],
-      longitude: aktau.port[1],
-      altitude: 0,
-      station: "\u041F\u043E\u0440\u0442\u043E\u0432\u0430\u044F \u0433\u0440\u0443\u043F\u043F\u0430",
-      mission: "\u0422\u0435\u0445\u043D\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u043E\u0441\u043C\u043E\u0442\u0440"
-    }
-  });
-  const patrol = await prisma2.patrol.upsert({
-    where: { publicId: "PT-2409-01" },
-    update: {},
-    create: {
-      publicId: "PT-2409-01",
-      droneId: drone1.id,
-      area: "\u041D\u0430\u0431\u0435\u0440\u0435\u0436\u043D\u0430\u044F \u0410\u043A\u0442\u0430\u0443 - \u0441\u043A\u0430\u043B\u044C\u043D\u0430\u044F \u0437\u043E\u043D\u0430",
-      missionType: "\u0411\u0435\u0440\u0435\u0433\u043E\u0432\u043E\u0439 \u043C\u043E\u043D\u0438\u0442\u043E\u0440\u0438\u043D\u0433",
-      modules: ["\u0423\u0442\u043E\u043F\u043B\u0435\u043D\u0438\u0435", "\u0417\u0430\u043F\u043B\u044B\u0432 \u0437\u0430 \u0433\u0440\u0430\u043D\u0438\u0446\u0443", "\u0414\u0435\u0442\u0438", "\u0420\u044B\u0431\u0430\u043A\u0438"],
-      status: PatrolStatus.ACTIVE,
-      route: [
-        [43.676, 51.125],
-        [43.657, 51.139],
-        [43.636, 51.151],
-        [43.622, 51.157]
-      ],
-      progress: 38,
-      startedAt: hoursAgo(1.2)
-    }
-  });
-  const rescuers = [
-    ["\u0410\u0440\u043C\u0430\u043D \u041A\u0430\u0441\u044B\u043C\u043E\u0432", "RESCUE-1", RescuerStatus2.AVAILABLE, 43.6422, 51.1501],
-    ["\u0414\u0438\u0430\u043D\u0430 \u0422\u043B\u0435\u0443\u0431\u0435\u0440\u0433\u0435\u043D", "RESCUE-2", RescuerStatus2.AVAILABLE, 43.6351, 51.1614],
-    ["\u0415\u0440\u043B\u0430\u043D \u041E\u043C\u0430\u0440\u043E\u0432", "RESCUE-3", RescuerStatus2.BUSY, 43.6032, 51.2204]
-  ];
-  for (const rescuer of rescuers) {
-    await prisma2.rescuer.upsert({
-      where: { callSign: rescuer[1] },
-      update: { status: rescuer[2], latitude: rescuer[3], longitude: rescuer[4] },
-      create: {
-        name: rescuer[0],
-        callSign: rescuer[1],
-        status: rescuer[2],
-        latitude: rescuer[3],
-        longitude: rescuer[4]
-      }
-    });
-  }
-  await prisma2.responseService.createMany({
-    data: [
-      {
-        name: "Water Rescue Aktau",
-        type: ResponseServiceType2.WATER_RESCUE,
-        status: ResponseServiceStatus.AVAILABLE,
-        latitude: 43.6422,
-        longitude: 51.1501,
-        metadata: { callSign: "WATER-01", isMock: true }
-      },
-      {
-        name: "Search & Rescue Mobile Group",
-        type: ResponseServiceType2.SEARCH_RESCUE,
-        status: ResponseServiceStatus.AVAILABLE,
-        latitude: 43.6351,
-        longitude: 51.1614,
-        metadata: { callSign: "SAR-02", isMock: true }
-      },
-      {
-        name: "Eco Monitoring",
-        type: ResponseServiceType2.ECO_SERVICE,
-        status: ResponseServiceStatus.AVAILABLE,
-        latitude: 43.6019,
-        longitude: 51.2281,
-        metadata: { callSign: "ECO-03", isMock: true }
-      }
-    ]
-  });
-  const zones = [
-    {
-      name: "\u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u0430\u044F \u0437\u043E\u043D\u0430 \u043F\u043B\u044F\u0436\u0430 7\u0410",
-      type: ZoneType.SAFE,
-      polygon: [
-        [43.655, 51.134],
-        [43.647, 51.138],
-        [43.641, 51.153],
-        [43.649, 51.158],
-        [43.659, 51.143]
-      ]
-    },
-    {
-      name: "\u0417\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043D\u0430\u044F \u0437\u043E\u043D\u0430 \u0432\u043E\u0437\u043B\u0435 \u043F\u043E\u0440\u0442\u0430",
-      type: ZoneType.RESTRICTED,
-      polygon: [
-        [43.609, 51.211],
-        [43.595, 51.221],
-        [43.601, 51.241],
-        [43.616, 51.231]
-      ]
-    },
-    {
-      name: "\u041F\u043E\u0438\u0441\u043A\u043E\u0432\u044B\u0439 \u0441\u0435\u043A\u0442\u043E\u0440 \u0441\u043A\u0430\u043B",
-      type: ZoneType.SEARCH,
-      polygon: [
-        [43.629, 51.146],
-        [43.618, 51.151],
-        [43.612, 51.166],
-        [43.625, 51.172],
-        [43.636, 51.158]
-      ]
-    }
-  ];
-  for (const zone of zones) {
-    await prisma2.zone.create({ data: zone });
-  }
-  const historical = [
-    ["QT-0038", IncidentType3.SAFE_ZONE_VIOLATION, IncidentStatus2.RESOLVED, Severity3.MEDIUM, 78, 43.6511, 51.1441, daysAgo(6)],
-    ["QT-0039", IncidentType3.FISHERMAN_SAFETY, IncidentStatus2.RESOLVED, Severity3.LOW, 71, 43.6731, 51.1269, daysAgo(4)],
-    ["QT-0040", IncidentType3.CHILD_RISK, IncidentStatus2.RESOLVED, Severity3.HIGH, 84, 43.6472, 51.1512, daysAgo(2)],
-    ["QT-0041", IncidentType3.RESTRICTED_ZONE, IncidentStatus2.FALSE_ALARM, Severity3.MEDIUM, 66, 43.6041, 51.223, hoursAgo(9)]
-  ];
-  const seededIncidents = [];
-  for (const item of historical) {
-    const incident = await prisma2.incident.upsert({
-      where: { publicId: item[0] },
-      update: {},
-      create: {
-        publicId: item[0],
-        type: item[1],
-        status: item[2],
-        severity: item[3],
-        confidence: item[4],
-        latitude: item[5],
-        longitude: item[6],
-        droneId: drone1.id,
-        patrolId: patrol.id,
-        detectedAt: item[7],
-        confirmedAt: item[2] === IncidentStatus2.FALSE_ALARM ? null : new Date(item[7].getTime() + 4 * 60 * 1e3),
-        resolvedAt: item[2] === IncidentStatus2.FALSE_ALARM ? item[7] : new Date(item[7].getTime() + 18 * 60 * 1e3),
-        createdAt: item[7]
-      }
-    });
-    await prisma2.incidentEvent.createMany({
-      data: [
-        { incidentId: incident.id, type: "DETECTION", message: "AI \u0437\u0430\u0444\u0438\u043A\u0441\u0438\u0440\u043E\u0432\u0430\u043B \u0441\u043E\u0431\u044B\u0442\u0438\u0435 \u0432 \u0431\u0435\u0440\u0435\u0433\u043E\u0432\u043E\u0439 \u0437\u043E\u043D\u0435", createdAt: item[7] },
-        { incidentId: incident.id, type: "OPERATOR", message: item[2] === IncidentStatus2.FALSE_ALARM ? "\u041E\u043F\u0435\u0440\u0430\u0442\u043E\u0440 \u043E\u0442\u043C\u0435\u0442\u0438\u043B \u043B\u043E\u0436\u043D\u0443\u044E \u0442\u0440\u0435\u0432\u043E\u0433\u0443" : "\u041E\u043F\u0435\u0440\u0430\u0442\u043E\u0440 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u043B \u0438\u043D\u0446\u0438\u0434\u0435\u043D\u0442", createdAt: new Date(item[7].getTime() + 2 * 60 * 1e3) }
-      ],
-      skipDuplicates: true
-    });
-    seededIncidents.push(incident);
-  }
-  const searchMission = await prisma2.searchMission.upsert({
-    where: { publicId: "SR-1024" },
-    update: {},
-    create: {
-      publicId: "SR-1024",
-      status: "ACTIVE",
-      approximateTime: hoursAgo(2),
-      description: "\u041C\u0443\u0436\u0447\u0438\u043D\u0430, \u043F\u043E\u0441\u043B\u0435\u0434\u043D\u0438\u0439 \u0440\u0430\u0437 \u0437\u0430\u043C\u0435\u0447\u0435\u043D \u0432\u043E\u0437\u043B\u0435 \u0441\u043A\u0430\u043B. \u041E\u0434\u0435\u0442 \u0432 \u043A\u0440\u0430\u0441\u043D\u0443\u044E \u043A\u0443\u0440\u0442\u043A\u0443, \u043F\u0440\u0438 \u0441\u0435\u0431\u0435 \u0447\u0435\u0440\u043D\u044B\u0439 \u0440\u044E\u043A\u0437\u0430\u043A.",
-      distinctiveItems: ["\u041A\u0440\u0430\u0441\u043D\u0430\u044F \u043A\u0443\u0440\u0442\u043A\u0430", "\u0427\u0435\u0440\u043D\u044B\u0439 \u0440\u044E\u043A\u0437\u0430\u043A"],
-      centerLatitude: aktau.rocks[0],
-      centerLongitude: aktau.rocks[1],
-      radius: 650,
-      areaChecked: 44,
-      startedAt: hoursAgo(1.8)
-    }
-  });
-  await prisma2.searchCandidate.createMany({
-    data: [
-      {
-        searchMissionId: searchMission.id,
-        confidence: 82,
-        visualSimilarity: 82,
-        latitude: 43.6224,
-        longitude: 51.1576,
-        imageUrl: "/demo/candidate-red-jacket.jpg",
-        matchedItems: ["\u041A\u0440\u0430\u0441\u043D\u0430\u044F \u043A\u0443\u0440\u0442\u043A\u0430", "\u0427\u0435\u0440\u043D\u044B\u0439 \u0440\u044E\u043A\u0437\u0430\u043A"],
-        status: "NEW",
-        detectedAt: hoursAgo(1.1)
-      },
-      {
-        searchMissionId: searchMission.id,
-        confidence: 61,
-        visualSimilarity: 58,
-        latitude: 43.6261,
-        longitude: 51.1519,
-        imageUrl: "/demo/candidate-low-confidence.jpg",
-        matchedItems: ["\u0422\u0435\u043C\u043D\u0430\u044F \u0441\u0443\u043C\u043A\u0430"],
-        status: "REJECTED",
-        detectedAt: hoursAgo(1.4)
-      }
-    ]
-  });
-  await prisma2.targetSighting.createMany({
-    data: [
-      {
-        searchMissionId: searchMission.id,
-        sourceType: "Camera",
-        sourceId: "CAM-04",
-        latitude: 43.629,
-        longitude: 51.151,
-        timestamp: hoursAgo(2.3),
-        confidence: 74,
-        metadata: { label: "18:21 Camera 04", isMock: true }
-      },
-      {
-        searchMissionId: searchMission.id,
-        sourceType: "Drone",
-        sourceId: "QUTQAR-01",
-        latitude: 43.624,
-        longitude: 51.155,
-        timestamp: hoursAgo(1.9),
-        confidence: 84,
-        metadata: { label: "18:27 Drone QUTQAR-01", isMock: true }
-      },
-      {
-        searchMissionId: searchMission.id,
-        sourceType: "Camera",
-        sourceId: "CAM-07",
-        latitude: 43.6218,
-        longitude: 51.1567,
-        timestamp: hoursAgo(1.6),
-        confidence: 69,
-        metadata: { label: "18:31 Camera 07", status: "LOST", isMock: true }
-      }
-    ]
-  });
-  for (let i = 0; i < 18; i += 1) {
-    await prisma2.droneTelemetry.create({
-      data: {
-        droneId: drone1.id,
-        battery: 87 - i,
-        latitude: 43.675 - i * 23e-4,
-        longitude: 51.126 + i * 18e-4,
-        altitude: 74 + i % 5 * 3,
-        speed: 8.5 + i % 3,
-        heading: 185 + i,
-        createdAt: new Date(Date.now() - (18 - i) * 90 * 1e3)
-      }
-    });
-  }
-  const detectionPoints = [
-    [IncidentType3.POTENTIAL_DROWNING, 91, 43.6466, 51.1492],
-    [IncidentType3.SAFE_ZONE_VIOLATION, 74, 43.6515, 51.1452],
-    [IncidentType3.CHILD_RISK, 82, 43.6488, 51.1519],
-    [IncidentType3.FISHERMAN_SAFETY, 69, 43.6718, 51.1261]
-  ];
-  for (const [type, confidence, latitude, longitude] of detectionPoints) {
-    await prisma2.detection.create({
-      data: {
-        type,
-        confidence,
-        latitude,
-        longitude,
-        droneId: drone1.id,
-        patrolId: patrol.id,
-        metadata: { source: "mock-ai", frame: "demo-coastline" },
-        feedback: confidence > 85 ? "confirmed" : null
-      }
-    });
-  }
-  const environmentalSnapshot = await prisma2.environmentalSnapshot.create({
-    data: {
-      sourceKind: DataSourceKind2.SIMULATED,
-      windSpeed: 8.4,
-      windDirection: 286,
-      temperature: 24.2,
-      visibility: 9.5,
-      precipitation: 0,
-      weatherStatus: "\u042F\u0441\u043D\u043E, simulated",
-      waveHeight: 1.2,
-      wavePeriod: 5.8,
-      waveDirection: 301,
-      currentSpeed: 0.34,
-      currentDirection: 312,
-      droneCondition: "NORMAL",
-      rescueCondition: "ELEVATED",
-      explanation: "SIMULATED: \u0432\u0435\u0442\u0435\u0440 \u0438 \u0432\u043E\u043B\u043D\u0430 \u0443\u043C\u0435\u0440\u0435\u043D\u043D\u044B\u0435; \u0441\u043F\u0430\u0441\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u043E\u043F\u0435\u0440\u0430\u0446\u0438\u0438 \u0442\u0440\u0435\u0431\u0443\u044E\u0442 \u043F\u043E\u0432\u044B\u0448\u0435\u043D\u043D\u043E\u0433\u043E \u0432\u043D\u0438\u043C\u0430\u043D\u0438\u044F.",
-      validAt: /* @__PURE__ */ new Date()
-    }
-  });
-  await prisma2.driftPrediction.create({
-    data: {
-      searchMissionId: searchMission.id,
-      environmentalSnapshotId: environmentalSnapshot.id,
-      originLatitude: aktau.rocks[0],
-      originLongitude: aktau.rocks[1],
-      elapsedMinutes: 20,
-      areas: [
-        { label: "NOW", latitude: 43.6224, longitude: 51.1561, radius: 140 },
-        { label: "+5 MIN", latitude: 43.6232, longitude: 51.1548, radius: 220 },
-        { label: "+10 MIN", latitude: 43.6242, longitude: 51.1535, radius: 310 },
-        { label: "+20 MIN", latitude: 43.6261, longitude: 51.1512, radius: 460 }
-      ],
-      metadata: { model: "deterministic-demo-drift", isMock: true }
-    }
-  });
-  const recording = await prisma2.recording.create({
-    data: {
-      publicId: "REC-2409-01",
-      droneId: drone1.id,
-      mission: "\u041F\u0430\u0442\u0440\u0443\u043B\u044C \u043F\u043B\u044F\u0436\u0430 7\u0410",
-      videoUrl: "/demo/qutqar-coastline-playback.mp4",
-      startedAt: hoursAgo(3),
-      endedAt: hoursAgo(2.4),
-      metadata: { source: "prerecorded-placeholder", isMock: true }
-    }
-  });
-  await prisma2.recordingEvent.createMany({
-    data: [
-      {
-        recordingId: recording.id,
-        timestamp: new Date(recording.startedAt.getTime() + 4 * 60 * 1e3),
-        offsetSec: 240,
-        type: "DRONE_POSITION",
-        label: "QUTQAR-01 \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442 \u0441\u0435\u0432\u0435\u0440\u043D\u044B\u0439 \u0441\u0435\u043A\u0442\u043E\u0440",
-        latitude: 43.657,
-        longitude: 51.139,
-        metadata: { battery: 84 }
-      },
-      {
-        recordingId: recording.id,
-        timestamp: new Date(recording.startedAt.getTime() + 11 * 60 * 1e3),
-        offsetSec: 660,
-        type: "AI_ALERT",
-        label: "Potential drowning detected",
-        latitude: 43.6466,
-        longitude: 51.1492,
-        metadata: { confidence: 91, box: [42, 31, 18, 26] }
-      },
-      {
-        recordingId: recording.id,
-        timestamp: new Date(recording.startedAt.getTime() + 12 * 60 * 1e3),
-        offsetSec: 720,
-        type: "OPERATOR",
-        label: "\u041E\u043F\u0435\u0440\u0430\u0442\u043E\u0440 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u043B \u0438\u043D\u0446\u0438\u0434\u0435\u043D\u0442",
-        latitude: 43.6466,
-        longitude: 51.1492,
-        metadata: { publicId: "QT-0040" }
-      }
-    ]
-  });
-  await prisma2.changeDetection.createMany({
-    data: [
-      {
-        recordingId: recording.id,
-        compareLabelA: "12 Sep 2026",
-        compareLabelB: "23 Sep 2026",
-        type: "new object",
-        confidence: 72,
-        latitude: 43.648,
-        longitude: 51.1503,
-        metadata: { label: "\u041D\u043E\u0432\u044B\u0439 \u043E\u0431\u044A\u0435\u043A\u0442 \u0443 \u043F\u0438\u0440\u0441\u0430", isMock: true }
-      },
-      {
-        recordingId: recording.id,
-        compareLabelA: "12 Sep 2026",
-        compareLabelB: "23 Sep 2026",
-        type: "coastline change",
-        confidence: 64,
-        latitude: 43.622,
-        longitude: 51.157,
-        metadata: { label: "\u0418\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0435 \u0431\u0435\u0440\u0435\u0433\u043E\u0432\u043E\u0439 \u043B\u0438\u043D\u0438\u0438", isMock: true }
-      }
-    ]
-  });
-  for (const incident of seededIncidents.filter((item) => item.status !== IncidentStatus2.FALSE_ALARM).slice(0, 2)) {
-    const evidence = await prisma2.evidence.create({
-      data: {
-        publicId: `EV-${incident.publicId}`,
-        incidentId: incident.id,
-        reportHtml: `<h1>QUTQAR Evidence ${incident.publicId}</h1><p>${incident.type}</p>`,
-        qrPayload: `/evidence?incident=${incident.publicId}`,
-        metadata: { isMock: false, drone: "QUTQAR-01", confidence: incident.confidence }
-      }
-    });
-    await prisma2.evidenceAsset.createMany({
-      data: [
-        {
-          evidenceId: evidence.id,
-          type: "DETECTION_SCREENSHOT",
-          label: "Detection frame",
-          url: "/demo/evidence-frame.jpg",
-          metadata: { source: "mock-ai-frame" }
-        },
-        {
-          evidenceId: evidence.id,
-          type: "VIDEO_CLIP",
-          label: "Playback clip reference",
-          url: recording.videoUrl,
-          metadata: { recordingId: recording.publicId }
-        }
-      ]
-    });
-  }
-  if (seededIncidents[2]) {
-    await prisma2.printJob.create({
-      data: {
-        incidentId: seededIncidents[2].id,
-        status: PrintJobStatus.PRINTED,
-        reportUrl: `/evidence?incident=${seededIncidents[2].publicId}`,
-        printedAt: hoursAgo(1.9),
-        metadata: { provider: "MockPrinterProvider", station: "\u0421\u043F\u0430\u0441\u0430\u0442\u0435\u043B\u044C\u043D\u0430\u044F \u0441\u0442\u0430\u043D\u0446\u0438\u044F 7\u0410" }
-      }
-    });
-  }
+  await seedWith(prisma2);
 }
-var prisma2, aktau;
+var prisma2, systemUsers;
 var init_seed = __esm({
   "prisma/seed.ts"() {
     "use strict";
     init_env();
     prisma2 = new PrismaClient3();
-    aktau = {
-      station: [43.6369, 51.1688],
-      beach: [43.6509, 51.1406],
-      rocks: [43.6218, 51.1567],
-      port: [43.6019, 51.2281],
-      coastNorth: [43.6742, 51.1262]
-    };
+    systemUsers = [
+      {
+        name: "\u041D\u0430\u0434\u0437\u043E\u0440 QUTQAR",
+        role: "SUPERVISOR",
+        email: "nadzor@qutqar.kz",
+        passwordHash: "65fc349f7ead8012b8de5323e15c6e3b289517faf7098910e348453b9861573f"
+      },
+      {
+        name: "\u041A\u043E\u043D\u0442\u0440\u043E\u043B\u043B\u0435\u0440 QUTQAR",
+        role: "CONTROLLER",
+        email: "controller@qutqar.kz",
+        passwordHash: "2f7945c2bd522579a10a0fe818f7a8764f63344a5d41eedc43117990e909d794"
+      }
+    ];
     if (import.meta.url === pathToFileURL(process.argv[1]).href) {
       seed().catch((error) => {
         console.error(error);
@@ -561,10 +87,11 @@ var env = {
 // apps/api/src/index.ts
 import cors from "cors";
 import express from "express";
+import { createHash } from "node:crypto";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
 import { z } from "zod";
-import { AssignmentStatus as AssignmentStatus2, CandidateStatus, ConnectionMethod as ConnectionMethod2, ConnectionStatus as ConnectionStatus2, IncidentStatus as IncidentStatus3, IncidentType as IncidentType4, PatrolStatus as PatrolStatus2, RescuerStatus as RescuerStatus3 } from "@prisma/client";
+import { AssignmentStatus as AssignmentStatus2, CandidateStatus, ConnectionMethod, ConnectionStatus, DroneStatus, IncidentStatus as IncidentStatus2, IncidentType as IncidentType3, PatrolStatus, RescuerStatus as RescuerStatus2 } from "@prisma/client";
 
 // apps/api/src/lib/prisma.ts
 import { PrismaClient } from "@prisma/client";
@@ -885,11 +412,18 @@ var io = new Server(httpServer, {
 });
 var demo = new DemoScenario(prisma, io);
 app.use(cors({ origin: "*" }));
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "50mb" }));
 var asyncRoute = (handler) => (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next);
 function routeParam(value) {
   if (Array.isArray(value)) return value[0] ?? "";
   return value ?? "";
+}
+function hashPassword(password) {
+  return createHash("sha256").update(password).digest("hex");
+}
+function publicUser(user) {
+  const { passwordHash: _passwordHash, ...safeUser } = user;
+  return safeUser;
 }
 async function getOverview() {
   const [drones, incidents, zones, rescuers, patrols, missions, detections, events, telemetry, activeConnection, sea, driftPredictions, sightings] = await Promise.all([
@@ -937,7 +471,7 @@ async function applyRescueAction(assignmentId, action) {
   const assignment = await prisma.rescueAssignment.findUniqueOrThrow({ where: { id: assignmentId }, include: { incident: true, rescuer: true } });
   const now = /* @__PURE__ */ new Date();
   const status = action === "ACCEPT" ? AssignmentStatus2.ACCEPTED : action === "ARRIVED" ? AssignmentStatus2.ARRIVED : AssignmentStatus2.COMPLETED;
-  const incidentStatus = action === "ACCEPT" ? IncidentStatus3.RESCUER_ACCEPTED : action === "ARRIVED" ? IncidentStatus3.ARRIVED : IncidentStatus3.RESOLVED;
+  const incidentStatus = action === "ACCEPT" ? IncidentStatus2.RESCUER_ACCEPTED : action === "ARRIVED" ? IncidentStatus2.ARRIVED : IncidentStatus2.RESOLVED;
   await prisma.rescueAssignment.update({
     where: { id: assignment.id },
     data: {
@@ -957,7 +491,7 @@ async function applyRescueAction(assignmentId, action) {
     }
   });
   if (action === "RESCUED") {
-    await prisma.rescuer.update({ where: { id: assignment.rescuerId }, data: { status: RescuerStatus3.AVAILABLE } });
+    await prisma.rescuer.update({ where: { id: assignment.rescuerId }, data: { status: RescuerStatus2.AVAILABLE } });
   }
   const updated = await prisma.rescueAssignment.findUniqueOrThrow({
     where: { id: assignment.id },
@@ -974,9 +508,177 @@ app.get("/api/health", asyncRoute(async (_req, res) => {
   await prisma.$queryRaw`SELECT 1`;
   res.json({ ok: true, database: "connected", mocked: ["DJI", "telemetry", "GPS", "AI inference", "live stream"] });
 }));
+app.post("/api/auth/login", asyncRoute(async (req, res) => {
+  const input = z.object({
+    email: z.string().email(),
+    password: z.string().min(1)
+  }).parse(req.body);
+  const user = await prisma.user.findUnique({ where: { email: input.email.toLowerCase() } });
+  if (!user || user.passwordHash !== hashPassword(input.password)) {
+    res.status(401).json({ message: "\u041D\u0435\u0432\u0435\u0440\u043D\u044B\u0439 email \u0438\u043B\u0438 \u043F\u0430\u0440\u043E\u043B\u044C" });
+    return;
+  }
+  res.json({ user: publicUser(user) });
+}));
+app.get("/api/admin/snapshot", asyncRoute(async (_req, res) => {
+  const [users, drones, rescuers, recordings] = await Promise.all([
+    prisma.user.findMany({ orderBy: { createdAt: "asc" } }),
+    prisma.drone.findMany({ orderBy: { name: "asc" } }),
+    prisma.rescuer.findMany({ orderBy: { callSign: "asc" } }),
+    prisma.recording.findMany({ orderBy: { createdAt: "desc" }, include: { drone: true, events: { orderBy: { offsetSec: "asc" } }, changes: true } })
+  ]);
+  res.json({ users: users.map(publicUser), drones, rescuers, recordings });
+}));
+app.post("/api/admin/users", asyncRoute(async (req, res) => {
+  const input = z.object({
+    name: z.string().min(2),
+    email: z.string().email(),
+    role: z.enum(["SUPERVISOR", "CONTROLLER"]),
+    password: z.string().min(6)
+  }).parse(req.body);
+  const user = await prisma.user.create({
+    data: {
+      name: input.name,
+      email: input.email.toLowerCase(),
+      role: input.role,
+      passwordHash: hashPassword(input.password)
+    }
+  });
+  io.emit("dashboard:update");
+  res.json(publicUser(user));
+}));
+app.put("/api/admin/users/:id", asyncRoute(async (req, res) => {
+  const input = z.object({
+    name: z.string().min(2),
+    email: z.string().email(),
+    role: z.enum(["SUPERVISOR", "CONTROLLER"]),
+    password: z.string().min(6).optional().or(z.literal(""))
+  }).parse(req.body);
+  const data = {
+    name: input.name,
+    email: input.email.toLowerCase(),
+    role: input.role
+  };
+  if (input.password) data.passwordHash = hashPassword(input.password);
+  const user = await prisma.user.update({ where: { id: routeParam(req.params.id) }, data });
+  io.emit("dashboard:update");
+  res.json(publicUser(user));
+}));
+app.delete("/api/admin/users/:id", asyncRoute(async (req, res) => {
+  const id = routeParam(req.params.id);
+  const user = await prisma.user.findUniqueOrThrow({ where: { id } });
+  if (user.role === "CONTROLLER") {
+    const controllers = await prisma.user.count({ where: { role: "CONTROLLER" } });
+    if (controllers <= 1) {
+      res.status(400).json({ message: "\u041D\u0435\u043B\u044C\u0437\u044F \u0443\u0434\u0430\u043B\u0438\u0442\u044C \u043F\u043E\u0441\u043B\u0435\u0434\u043D\u0435\u0433\u043E \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u043B\u0435\u0440\u0430" });
+      return;
+    }
+  }
+  await prisma.user.delete({ where: { id } });
+  io.emit("dashboard:update");
+  res.json({ ok: true });
+}));
+app.post("/api/admin/drones", asyncRoute(async (req, res) => {
+  const input = z.object({
+    serialNumber: z.string().min(2),
+    name: z.string().min(2),
+    model: z.string().min(2),
+    status: z.nativeEnum(DroneStatus).default(DroneStatus.OFFLINE),
+    battery: z.number().min(0).max(100).default(100),
+    latitude: z.number(),
+    longitude: z.number(),
+    altitude: z.number().default(0),
+    station: z.string().optional(),
+    mission: z.string().optional()
+  }).parse(req.body);
+  const drone = await prisma.drone.create({ data: { ...input, gpsStatus: "READY", cameraStatus: "ONLINE" } });
+  io.emit("dashboard:update");
+  res.json(drone);
+}));
+app.put("/api/admin/drones/:id", asyncRoute(async (req, res) => {
+  const input = z.object({
+    serialNumber: z.string().min(2),
+    name: z.string().min(2),
+    model: z.string().min(2),
+    status: z.nativeEnum(DroneStatus),
+    battery: z.number().min(0).max(100),
+    latitude: z.number(),
+    longitude: z.number(),
+    altitude: z.number(),
+    station: z.string().optional().nullable(),
+    mission: z.string().optional().nullable()
+  }).parse(req.body);
+  const drone = await prisma.drone.update({ where: { id: routeParam(req.params.id) }, data: { ...input, lastSeenAt: /* @__PURE__ */ new Date() } });
+  io.emit("dashboard:update");
+  res.json(drone);
+}));
+app.delete("/api/admin/drones/:id", asyncRoute(async (req, res) => {
+  await prisma.drone.delete({ where: { id: routeParam(req.params.id) } });
+  io.emit("dashboard:update");
+  res.json({ ok: true });
+}));
+app.post("/api/admin/rescuers", asyncRoute(async (req, res) => {
+  const input = z.object({
+    name: z.string().min(2),
+    callSign: z.string().min(2),
+    status: z.nativeEnum(RescuerStatus2).default(RescuerStatus2.AVAILABLE),
+    latitude: z.number(),
+    longitude: z.number()
+  }).parse(req.body);
+  const rescuer = await prisma.rescuer.create({ data: input });
+  io.emit("dashboard:update");
+  res.json(rescuer);
+}));
+app.put("/api/admin/rescuers/:id", asyncRoute(async (req, res) => {
+  const input = z.object({
+    name: z.string().min(2),
+    callSign: z.string().min(2),
+    status: z.nativeEnum(RescuerStatus2),
+    latitude: z.number(),
+    longitude: z.number()
+  }).parse(req.body);
+  const rescuer = await prisma.rescuer.update({ where: { id: routeParam(req.params.id) }, data: input });
+  io.emit("dashboard:update");
+  res.json(rescuer);
+}));
+app.delete("/api/admin/rescuers/:id", asyncRoute(async (req, res) => {
+  await prisma.rescuer.delete({ where: { id: routeParam(req.params.id) } });
+  io.emit("dashboard:update");
+  res.json({ ok: true });
+}));
+app.post("/api/admin/recordings", asyncRoute(async (req, res) => {
+  const input = z.object({
+    droneId: z.string(),
+    mission: z.string().min(2),
+    videoUrl: z.string().min(4),
+    startedAt: z.string(),
+    endedAt: z.string(),
+    metadata: z.record(z.string(), z.unknown()).default({})
+  }).parse(req.body);
+  const count = await prisma.recording.count();
+  const recording = await prisma.recording.create({
+    data: {
+      publicId: `REC-${String(count + 1).padStart(4, "0")}`,
+      droneId: input.droneId,
+      mission: input.mission,
+      videoUrl: input.videoUrl,
+      startedAt: new Date(input.startedAt),
+      endedAt: new Date(input.endedAt),
+      metadata: input.metadata
+    },
+    include: { drone: true, events: true, changes: true }
+  });
+  io.emit("dashboard:update");
+  res.json(recording);
+}));
+app.delete("/api/admin/recordings/:id", asyncRoute(async (req, res) => {
+  await prisma.recording.delete({ where: { id: routeParam(req.params.id) } });
+  io.emit("dashboard:update");
+  res.json({ ok: true });
+}));
 app.get("/api/connections/active", asyncRoute(async (_req, res) => {
   const active = await prisma.droneConnection.findFirst({
-    where: { status: ConnectionStatus2.CONNECTED },
+    where: { status: ConnectionStatus.CONNECTED },
     orderBy: { connectedAt: "desc" },
     include: { drone: true }
   });
@@ -985,13 +687,13 @@ app.get("/api/connections/active", asyncRoute(async (_req, res) => {
 app.post("/api/connections/connect", asyncRoute(async (req, res) => {
   const input = z.object({
     model: z.string().min(2),
-    method: z.nativeEnum(ConnectionMethod2),
+    method: z.nativeEnum(ConnectionMethod),
     serialNumber: z.string().min(1).optional()
   }).parse(req.body);
   const serialNumber = input.serialNumber?.trim() || `DEMO-${input.model.toUpperCase().replace(/[^A-Z0-9]+/g, "-")}-${Date.now().toString().slice(-4)}`;
   await prisma.droneConnection.updateMany({
-    where: { status: ConnectionStatus2.CONNECTED },
-    data: { status: ConnectionStatus2.DISCONNECTED, disconnectedAt: /* @__PURE__ */ new Date() }
+    where: { status: ConnectionStatus.CONNECTED },
+    data: { status: ConnectionStatus.DISCONNECTED, disconnectedAt: /* @__PURE__ */ new Date() }
   });
   const count = await prisma.drone.count();
   const drone = await prisma.drone.upsert({
@@ -1026,13 +728,13 @@ app.post("/api/connections/connect", asyncRoute(async (req, res) => {
     data: {
       droneId: drone.id,
       method: input.method,
-      status: ConnectionStatus2.CONNECTED,
+      status: ConnectionStatus.CONNECTED,
       isMock: true,
       selectedModel: input.model,
       serialNumber,
       metadata: {
         label: "DEMO CONNECTION",
-        flow: input.method === ConnectionMethod2.DJI_APP ? ["\u041F\u043E\u0438\u0441\u043A \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430", "\u0423\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E \u043D\u0430\u0439\u0434\u0435\u043D\u043E", "\u0423\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0430 \u0441\u043E\u0435\u0434\u0438\u043D\u0435\u043D\u0438\u044F", "\u041F\u043E\u043B\u0443\u0447\u0435\u043D\u0438\u0435 \u0442\u0435\u043B\u0435\u043C\u0435\u0442\u0440\u0438\u0438", "\u0421\u0438\u043D\u0445\u0440\u043E\u043D\u0438\u0437\u0430\u0446\u0438\u044F \u043A\u0430\u043C\u0435\u0440\u044B", "\u041F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043E"] : []
+        flow: input.method === ConnectionMethod.DJI_APP ? ["\u041F\u043E\u0438\u0441\u043A \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430", "\u0423\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E \u043D\u0430\u0439\u0434\u0435\u043D\u043E", "\u0423\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0430 \u0441\u043E\u0435\u0434\u0438\u043D\u0435\u043D\u0438\u044F", "\u041F\u043E\u043B\u0443\u0447\u0435\u043D\u0438\u0435 \u0442\u0435\u043B\u0435\u043C\u0435\u0442\u0440\u0438\u0438", "\u0421\u0438\u043D\u0445\u0440\u043E\u043D\u0438\u0437\u0430\u0446\u0438\u044F \u043A\u0430\u043C\u0435\u0440\u044B", "\u041F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u043E"] : []
       }
     },
     include: { drone: true }
@@ -1043,8 +745,8 @@ app.post("/api/connections/connect", asyncRoute(async (req, res) => {
 }));
 app.post("/api/connections/disconnect", asyncRoute(async (_req, res) => {
   const result = await prisma.droneConnection.updateMany({
-    where: { status: ConnectionStatus2.CONNECTED },
-    data: { status: ConnectionStatus2.DISCONNECTED, disconnectedAt: /* @__PURE__ */ new Date() }
+    where: { status: ConnectionStatus.CONNECTED },
+    data: { status: ConnectionStatus.DISCONNECTED, disconnectedAt: /* @__PURE__ */ new Date() }
   });
   io.emit("drone.disconnected", result);
   io.emit("dashboard:update");
@@ -1071,11 +773,11 @@ app.post("/api/incidents/:id/dispatch", asyncRoute(async (req, res) => {
   res.json(await demo.dispatchRescuer(routeParam(req.params.id)));
 }));
 app.post("/api/incidents/:id/status", asyncRoute(async (req, res) => {
-  const input = z.object({ status: z.nativeEnum(IncidentStatus3), message: z.string().optional() }).parse(req.body);
+  const input = z.object({ status: z.nativeEnum(IncidentStatus2), message: z.string().optional() }).parse(req.body);
   const data = {
     status: input.status,
-    confirmedAt: input.status === IncidentStatus3.CONFIRMED ? /* @__PURE__ */ new Date() : void 0,
-    resolvedAt: [IncidentStatus3.RESOLVED, IncidentStatus3.FALSE_ALARM].includes(input.status) ? /* @__PURE__ */ new Date() : void 0
+    confirmedAt: input.status === IncidentStatus2.CONFIRMED ? /* @__PURE__ */ new Date() : void 0,
+    resolvedAt: [IncidentStatus2.RESOLVED, IncidentStatus2.FALSE_ALARM].includes(input.status) ? /* @__PURE__ */ new Date() : void 0
   };
   const incident = await prisma.incident.update({ where: { id: routeParam(req.params.id) }, data });
   await prisma.incidentEvent.create({
@@ -1205,7 +907,7 @@ app.post("/api/patrols", asyncRoute(async (req, res) => {
       area: input.area,
       missionType: input.missionType,
       modules: input.modules,
-      status: PatrolStatus2.ACTIVE,
+      status: PatrolStatus.ACTIVE,
       route: [[43.676, 51.125], [43.646, 51.149], [43.622, 51.157]],
       startedAt: /* @__PURE__ */ new Date()
     }
@@ -1219,8 +921,8 @@ app.get("/api/analytics", asyncRoute(async (_req, res) => {
     prisma.detection.findMany(),
     prisma.patrol.findMany()
   ]);
-  const byType = Object.values(IncidentType4).map((type) => ({ type, count: incidents.filter((incident) => incident.type === type).length }));
-  const byStatus = Object.values(IncidentStatus3).map((status) => ({ status, count: incidents.filter((incident) => incident.status === status).length }));
+  const byType = Object.values(IncidentType3).map((type) => ({ type, count: incidents.filter((incident) => incident.type === type).length }));
+  const byStatus = Object.values(IncidentStatus2).map((status) => ({ status, count: incidents.filter((incident) => incident.status === status).length }));
   const byDay = Array.from({ length: 7 }, (_, index) => {
     const date = new Date(Date.now() - (6 - index) * 24 * 60 * 60 * 1e3);
     const key = date.toISOString().slice(0, 10);

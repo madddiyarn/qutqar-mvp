@@ -8,6 +8,9 @@ export function PlaybackPage() {
   const [recordings, setRecordings] = useState<Recording[]>([]);
   const [selectedId, setSelectedId] = useState<string>("");
   const [offset, setOffset] = useState(660);
+  const [fromMinute, setFromMinute] = useState(0);
+  const [toMinute, setToMinute] = useState(10);
+  const [clipReady, setClipReady] = useState(false);
   const [overlay, setOverlay] = useState(true);
   const [events, setEvents] = useState(true);
   const [mapSync, setMapSync] = useState(true);
@@ -20,10 +23,48 @@ export function PlaybackPage() {
   }, []);
 
   const selected = useMemo(() => recordings.find((item) => item.id === selectedId) ?? recordings[0], [recordings, selectedId]);
-  const activeEvent = selected?.events.reduce((best, event) => Math.abs(event.offsetSec - offset) < Math.abs(best.offsetSec - offset) ? event : best, selected.events[0]);
+  const fromSec = fromMinute * 60;
+  const toSec = Math.max(fromSec + 60, toMinute * 60);
+  const visibleEvents = selected?.events.filter((event) => event.offsetSec >= fromSec && event.offsetSec <= toSec) ?? [];
+  const activeEvent = (visibleEvents.length ? visibleEvents : selected?.events)?.reduce((best, event) => Math.abs(event.offsetSec - offset) < Math.abs(best.offsetSec - offset) ? event : best, (visibleEvents[0] ?? selected?.events[0]));
   const route = selected?.events.filter((event) => event.latitude && event.longitude).map((event) => [event.latitude!, event.longitude!] as [number, number]) ?? [];
 
   if (!selected) return <div className="card p-6 text-muted">Архив записей пока пуст.</div>;
+
+  if (!clipReady) {
+    return (
+      <div className="grid min-h-[calc(100vh-90px)] place-items-center p-4">
+        <section className="ops-panel cut-corner w-full max-w-2xl p-6">
+          <div className="ops-label">PLAYBACK / TIME WINDOW</div>
+          <h1 className="mt-2 text-3xl font-extrabold">Выберите фрагмент записи</h1>
+          <p className="mt-2 text-muted">Сначала задайте, с какой минуты по какую показать видео. После этого откроется архивный просмотр.</p>
+          <label className="mt-5 block text-sm font-extrabold text-muted">Запись</label>
+          <select className="field mt-2 w-full" value={selected.id} onChange={(event) => setSelectedId(event.target.value)}>
+            {recordings.map((recording) => <option key={recording.id} value={recording.id}>{recording.publicId} · {recording.mission}</option>)}
+          </select>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <label className="block text-sm font-extrabold text-muted">
+              С минуты
+              <input className="field mt-2 w-full" type="number" min={0} max={180} value={fromMinute} onChange={(event) => setFromMinute(Number(event.target.value))} />
+            </label>
+            <label className="block text-sm font-extrabold text-muted">
+              По минуту
+              <input className="field mt-2 w-full" type="number" min={1} max={240} value={toMinute} onChange={(event) => setToMinute(Number(event.target.value))} />
+            </label>
+          </div>
+          <button
+            className="btn btn-primary cut-corner mt-6 w-full"
+            onClick={() => {
+              setOffset(fromSec);
+              setClipReady(true);
+            }}
+          >
+            <Play size={17} /> Показать фрагмент
+          </button>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1.55fr)_420px]">
@@ -33,7 +74,7 @@ export function PlaybackPage() {
             <div className="mono text-sm text-muted">{selected.publicId}</div>
             <h1 className="text-2xl font-extrabold">Архив / Playback</h1>
           </div>
-          <select className="rounded-full border border-line px-4 py-2 font-bold" value={selected.id} onChange={(event) => setSelectedId(event.target.value)}>
+          <select className="field" value={selected.id} onChange={(event) => { setSelectedId(event.target.value); setClipReady(false); }}>
             {recordings.map((recording) => <option key={recording.id} value={recording.id}>{recording.mission}</option>)}
           </select>
         </div>
@@ -41,7 +82,7 @@ export function PlaybackPage() {
           <div className="absolute inset-0 bg-[linear-gradient(135deg,#b8d9e7_0%,#d8ecf2_35%,#f4dfb8_36%,#f4dfb8_48%,#a9c6b9_49%,#d7e7ef_100%)]" />
           <div className="absolute inset-x-0 bottom-0 h-1/3 bg-[#99c7cf]/70" />
           <div className="absolute left-4 top-4 rounded-2xl bg-white/90 px-3 py-2 font-mono text-xs font-bold">
-            PRERECORDED · {new Date(selected.startedAt).toLocaleTimeString("ru-RU")} - {new Date(selected.endedAt).toLocaleTimeString("ru-RU")}
+            PRERECORDED · WINDOW {fromMinute}:00 - {Math.max(fromMinute + 1, toMinute)}:00
           </div>
           {overlay && activeEvent?.type === "AI_ALERT" && (
             <div className="absolute left-[42%] top-[31%] h-[26%] w-[18%] rounded border-2 border-[#d92d20] bg-[#d92d20]/5">
@@ -49,9 +90,9 @@ export function PlaybackPage() {
             </div>
           )}
           <div className="absolute bottom-4 left-4 right-4 rounded-2xl bg-white/92 p-4">
-            <input className="w-full accent-[#0f87a8]" type="range" min={0} max={1800} value={offset} onChange={(event) => setOffset(Number(event.target.value))} />
+            <input className="w-full accent-[#0f87a8]" type="range" min={fromSec} max={toSec} value={offset} onChange={(event) => setOffset(Number(event.target.value))} />
             <div className="mt-2 flex justify-between text-xs font-bold text-muted">
-              <span>00:00</span><span className="mono">offset {offset}s</span><span>30:00</span>
+              <span>{fromMinute}:00</span><span className="mono">offset {offset}s</span><span>{Math.max(fromMinute + 1, toMinute)}:00</span>
             </div>
           </div>
         </div>
@@ -59,6 +100,7 @@ export function PlaybackPage() {
           <button className={`btn ${overlay ? "btn-primary" : ""}`} onClick={() => setOverlay(!overlay)}><Radar size={16} /> AI OVERLAY</button>
           <button className={`btn ${events ? "btn-primary" : ""}`} onClick={() => setEvents(!events)}>EVENTS</button>
           <button className={`btn ${mapSync ? "btn-primary" : ""}`} onClick={() => setMapSync(!mapSync)}>MAP SYNC</button>
+          <button className="btn" onClick={() => setClipReady(false)}>Выбрать другой интервал</button>
         </div>
       </section>
 
@@ -78,7 +120,7 @@ export function PlaybackPage() {
         <div className="card p-4">
           <h2 className="font-extrabold">Timeline events</h2>
           <div className="mt-3 space-y-2">
-            {events && selected.events.map((event) => (
+            {events && visibleEvents.map((event) => (
               <button key={event.id} className="w-full rounded-2xl border border-line p-3 text-left hover:border-[#0f87a8]" onClick={() => setOffset(event.offsetSec)}>
                 <div className="mono text-xs text-muted">{new Date(event.timestamp).toLocaleTimeString("ru-RU")} · {event.offsetSec}s</div>
                 <div className="font-bold">{event.label}</div>

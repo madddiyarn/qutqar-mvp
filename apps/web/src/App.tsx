@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+import { useAuth } from "./auth";
 import { Shell } from "./components/Shell";
 import { OverviewPage } from "./pages/OverviewPage";
 import { LivePage } from "./pages/LivePage";
@@ -11,8 +12,14 @@ import { RescuePage } from "./pages/RescuePage";
 import { PlaybackPage } from "./pages/PlaybackPage";
 import { EvidencePage } from "./pages/EvidencePage";
 import { SeaPage } from "./pages/SeaPage";
+import { LoginPage } from "./pages/LoginPage";
+import { ControllerPage } from "./pages/ControllerPage";
 
 export function App() {
+  const { user, isController } = useAuth();
+
+  if (!user) return <LoginPage />;
+
   return (
     <Routes>
       <Route path="/rescue" element={<RescuePage />} />
@@ -28,6 +35,7 @@ export function App() {
         <Route path="/sea" element={<SeaPage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/drones" element={<DronesPage />} />
+        <Route path="/controller" element={isController ? <ControllerPage /> : <Navigate to="/overview" replace />} />
       </Route>
     </Routes>
   );

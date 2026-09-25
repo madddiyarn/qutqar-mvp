@@ -2,6 +2,16 @@ export type DroneStatus = "ONLINE" | "CHARGING" | "OFFLINE" | "MAINTENANCE";
 export type IncidentStatus = "NEW" | "CONFIRMED" | "DISPATCHED" | "RESCUER_ACCEPTED" | "ARRIVED" | "RESOLVED" | "FALSE_ALARM";
 export type IncidentType = "POTENTIAL_DROWNING" | "SAFE_ZONE_VIOLATION" | "RESTRICTED_ZONE" | "PERSON_OVERBOARD" | "CHILD_RISK" | "FISHERMAN_SAFETY" | "SEARCH_TARGET";
 export type Severity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+export type UserRole = "SUPERVISOR" | "CONTROLLER";
+
+export interface User {
+  id: string;
+  name: string;
+  role: UserRole;
+  email: string;
+  createdAt: string;
+  updatedAt?: string;
+}
 
 export interface Drone {
   id: string;
@@ -202,6 +212,13 @@ export interface Recording {
   drone: Drone;
   events: RecordingEvent[];
   changes: ChangeDetection[];
+}
+
+export interface AdminSnapshot {
+  users: User[];
+  drones: Drone[];
+  rescuers: Rescuer[];
+  recordings: Recording[];
 }
 
 export interface RecordingEvent {
