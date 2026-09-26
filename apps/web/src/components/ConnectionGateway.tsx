@@ -21,7 +21,7 @@ export function ConnectionGateway({ onConnected }: { onConnected: (connection: D
   const [error, setError] = useState<string | null>(null);
   const busy = mode === "connecting";
   const qrPayload = JSON.stringify({
-    app: "QUTQAR",
+    app: "Boltzzmann",
     type: "DRONE_INIT",
     model,
     serialNumber: serialNumber.trim() || "DEMO-QR",
@@ -85,7 +85,7 @@ export function ConnectionGateway({ onConnected }: { onConnected: (connection: D
         <div className="gateway-hero p-6">
           <div className="flex items-center justify-between border-b border-line pb-4">
             <div>
-              <div className="ops-label">QUTQAR / DRONE INITIALIZATION</div>
+              <div className="ops-label">Boltzzmann / DRONE INITIALIZATION</div>
               <h1 className="mt-1 text-3xl font-extrabold">Подключите дрон</h1>
             </div>
             <div className="grid h-12 w-12 place-items-center cut-corner bg-[#087F73] text-white">
@@ -97,7 +97,7 @@ export function ConnectionGateway({ onConnected }: { onConnected: (connection: D
             <div className="absolute bottom-4 left-4 mono text-xs font-bold text-muted">MODEL / {model.toUpperCase()}</div>
             <div className="absolute right-4 top-4 mono text-xs font-bold text-[#087F73]">SEC / AKT-OPS</div>
           </div>
-          <p className="mt-4 max-w-md text-sm text-muted">Для начала работы подключите совместимый дрон к системе QUTQAR. DJI-интеграция в MVP смоделирована и не вызывает реальные DJI-сервисы.</p>
+          <p className="mt-4 max-w-md text-sm text-muted">Для начала работы подключите совместимый дрон к системе Boltzzmann. DJI-интеграция в MVP смоделирована и не вызывает реальные DJI-сервисы.</p>
           <div className="mt-5 border border-line bg-[#FAF9F5]/70 p-3">
             <div className="ops-label">DATA HONESTY</div>
             <div className="mono mt-1 text-xs font-bold text-[#69736F]">DEMO CONNECTION / MOCK DJI / SIMULATED TELEMETRY</div>

@@ -9,10 +9,10 @@ export function ControllerPage() {
   const [data, setData] = useState<AdminSnapshot | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [userForm, setUserForm] = useState({ name: "Новый пользователь", email: "new@qutqar.kz", role: "SUPERVISOR" as UserRole, password: "qutqar2026" });
+  const [userForm, setUserForm] = useState({ name: "Новый пользователь", email: "new@boltzzmann.kz", role: "SUPERVISOR" as UserRole, password: "boltzzmann2026" });
   const [droneForm, setDroneForm] = useState({
     serialNumber: "DRN-MANUAL-001",
-    name: "QUTQAR-01",
+    name: "Boltzzmann-01",
     model: "DJI Avata 2",
     status: "ONLINE" as Drone["status"],
     battery: 100,

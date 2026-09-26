@@ -44,7 +44,7 @@ export function Shell() {
 
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[72px_1fr]">
-      <aside className="qutqar-rail hidden border-r border-line px-2 py-3 lg:flex lg:flex-col">
+      <aside className="boltzzmann-rail hidden border-r border-line px-2 py-3 lg:flex lg:flex-col">
         <div className="mb-5 grid place-items-center border-b border-line pb-3">
           <div className="grid h-11 w-11 place-items-center cut-corner bg-[#087F73] text-white">
             <LifeBuoy size={23} />
@@ -81,17 +81,17 @@ export function Shell() {
         </div>
       </aside>
       <main className="min-w-0">
-        <header className="qutqar-topbar sticky top-0 z-20 border-b border-line px-3 py-2 md:px-4">
+        <header className="boltzzmann-topbar sticky top-0 z-20 border-b border-line px-3 py-2 md:px-4">
           <div className="grid gap-2 xl:grid-cols-[minmax(260px,0.8fr)_minmax(0,1.9fr)]">
             <div className="flex min-w-0 items-center gap-3">
               <span className="status-dot" />
               <div className="min-w-0">
-                <div className="ops-label">QUTQAR / AKTAU COASTAL OPS</div>
+                <div className="ops-label">Boltzzmann / AKTAU COASTAL OPS</div>
                 <div className="truncate text-sm font-extrabold">Система работает <span className="mono text-xs text-muted">/ DEMO MODE</span></div>
               </div>
             </div>
             <div className="flex flex-wrap items-center justify-start gap-x-4 gap-y-1 text-xs text-muted xl:justify-end">
-              <span className="mono">DRONE <b className="text-ink">{activeConnection?.drone.name.replace("QUTQAR-", "Q-") ?? "..."}</b></span>
+              <span className="mono">DRONE <b className="text-ink">{activeConnection?.drone.name.replace("Boltzzmann-", "B-") ?? "..."}</b></span>
               <span className="mono">LINK <b className="text-ink">98%</b></span>
               <span className="mono">GPS <b className="text-ink">14 SAT</b></span>
               <span className="mono">SEA <b className="text-ink">{data?.sea.waveHeight?.toFixed(1) ?? "..."}M</b></span>
@@ -100,7 +100,7 @@ export function Shell() {
               <span className="mono">ROLE <b className="text-ink">{user?.role === "CONTROLLER" ? "CONTROL" : "WATCH"}</b></span>
               {activeConnection && (
                 <button className="btn cut-corner px-3 py-1 text-[11px]" onClick={() => setPanelOpen((value) => !value)}>
-                  DRN / {activeConnection.drone.name.replace("QUTQAR-", "Q-")} · BAT {activeConnection.drone.battery}%
+                  DRN / {activeConnection.drone.name.replace("Boltzzmann-", "B-")} · BAT {activeConnection.drone.battery}%
                 </button>
               )}
               <span className="mono">{time}</span>

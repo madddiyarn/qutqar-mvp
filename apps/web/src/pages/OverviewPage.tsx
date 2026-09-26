@@ -31,7 +31,7 @@ export function OverviewPage() {
   if (error || !data) return <div className="ops-panel m-4 p-6 text-[#D92D20]">{error ?? "Нет данных"}</div>;
 
   return (
-    <div className="qutqar-map-shell">
+    <div className="boltzzmann-map-shell">
       <div className="relative h-full min-h-[calc(100vh-98px)] overflow-hidden">
         <img
           src={highlightVision ? "/media/coast-highlight.png" : "/media/coast-original.png"}
@@ -138,7 +138,7 @@ export function OverviewPage() {
 
       <div className="map-overlay bottom-3 left-3 right-3 p-0">
         <div className="telemetry-strip">
-          <Telemetry label="DRN" value="Q-01" detail="COASTAL PATROL" />
+          <Telemetry label="DRN" value="B-01" detail="COASTAL PATROL" />
           <Telemetry label="ALT" value={`${data.drones[0]?.altitude ?? 0}M`} detail="BARO SIM" />
           <Telemetry label="BAT" value={`${data.drones[0]?.battery ?? 0}%`} detail="LINK READY" />
           <Telemetry label="SEA" value={`${data.sea.waveHeight.toFixed(1)}M`} detail="SIM MARINE" icon={<Waves size={14} />} />

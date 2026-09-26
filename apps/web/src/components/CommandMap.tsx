@@ -91,7 +91,7 @@ export function CommandMap({ drones, incidents, zones, rescuers = [], missions =
         </Marker>
       ))}
       {drones.map((drone) => (
-        <Marker key={drone.id} position={[drone.latitude, drone.longitude]} icon={icon("drone-marker", `DRN / ${drone.name.replace("QUTQAR-", "Q-")}`)}>
+        <Marker key={drone.id} position={[drone.latitude, drone.longitude]} icon={icon("drone-marker", `DRN / ${drone.name.replace("Boltzzmann-", "B-")}`)}>
           <Popup>
             <b>{drone.name}</b>
             <br />

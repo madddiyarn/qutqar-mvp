@@ -48,7 +48,7 @@ export function RescuePage() {
           <div className="flex items-center gap-3">
             <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#d92d20] text-white sm:h-12 sm:w-12"><LifeBuoy /></div>
             <div>
-              <div className="text-xs font-extrabold text-muted">QUTQAR</div>
+              <div className="text-xs font-extrabold text-muted">Boltzzmann</div>
               <h1 className="text-xl font-extrabold sm:text-2xl">WATER RESCUE</h1>
             </div>
           </div>

@@ -147,18 +147,18 @@ select {
   animation: status-pulse 1800ms ease-in-out infinite;
 }
 
-.qutqar-rail {
+.boltzzmann-rail {
   background:
     linear-gradient(180deg, rgba(250, 249, 245, 0.96), rgba(242, 240, 233, 0.96)),
     repeating-linear-gradient(0deg, transparent 0 31px, rgba(8, 127, 115, 0.06) 32px);
 }
 
-.qutqar-topbar {
+.boltzzmann-topbar {
   background: rgba(250, 249, 245, 0.94);
   backdrop-filter: blur(12px);
 }
 
-.qutqar-map-shell {
+.boltzzmann-map-shell {
   position: relative;
   min-height: calc(100vh - 98px);
   border: 1px solid var(--line);
@@ -170,7 +170,7 @@ select {
   overflow: hidden;
 }
 
-.qutqar-map-shell::after {
+.boltzzmann-map-shell::after {
   content: "SEC / AKT-07    CASPIAN COASTAL GRID    DATUM WGS84";
   position: absolute;
   left: 92px;
@@ -184,7 +184,7 @@ select {
   pointer-events: none;
 }
 
-.qutqar-map-shell .leaflet-container {
+.boltzzmann-map-shell .leaflet-container {
   border-radius: 0;
 }
 
@@ -473,7 +473,7 @@ select {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .qutqar-map-shell {
+  .boltzzmann-map-shell {
     min-height: 760px;
   }
 }

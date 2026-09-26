@@ -25,7 +25,7 @@ export async function analyzeIncident(prisma: PrismaClient, incident: Incident) 
     type: incident.type,
     severity: incident.severity ?? Severity.HIGH,
     location: `Sector 04 · ${incident.latitude.toFixed(4)}, ${incident.longitude.toFixed(4)}`,
-    evidence: `Drone QUTQAR-01 / frame 18:42:31`,
+    evidence: `Drone Boltzzmann-01 / frame 18:42:31`,
     recommendedResponse: recommendedType,
     nearestResponder: nearest?.name ?? "RESCUE-1",
     requiresOperatorConfirmation: true
@@ -42,12 +42,12 @@ export async function createEvidencePackage(prisma: PrismaClient, incidentId: st
 
   const publicId = `EV-${incident.publicId}`;
   const reportHtml = [
-    `<h1>QUTQAR EMERGENCY REPORT</h1>`,
+    `<h1>Boltzzmann EMERGENCY REPORT</h1>`,
     `<p><strong>INCIDENT</strong> ${incident.publicId}</p>`,
     `<p><strong>TYPE</strong> ${incident.type}</p>`,
     `<p><strong>SEVERITY</strong> ${incident.severity}</p>`,
     `<p><strong>LOCATION</strong> ${incident.latitude.toFixed(5)}, ${incident.longitude.toFixed(5)}</p>`,
-    `<p><strong>DRONE</strong> ${incident.drone?.name ?? "QUTQAR-01"}</p>`,
+    `<p><strong>DRONE</strong> ${incident.drone?.name ?? "Boltzzmann-01"}</p>`,
     `<p><strong>AI CONFIDENCE</strong> ${incident.confidence}%</p>`
   ].join("");
 
@@ -58,7 +58,7 @@ export async function createEvidencePackage(prisma: PrismaClient, incidentId: st
       reportHtml,
       qrPayload: `/evidence?incident=${incident.publicId}`,
       metadata: {
-        source: "QUTQAR evidence service",
+        source: "Boltzzmann evidence service",
         isMockAssets: true,
         status: incident.status
       },
@@ -73,7 +73,7 @@ export async function createEvidencePackage(prisma: PrismaClient, incidentId: st
           {
             type: "VIDEO_CLIP",
             label: "Playback clip reference",
-            url: "/demo/qutqar-coastline-playback.mp4",
+            url: "/demo/boltzzmann-coastline-playback.mp4",
             metadata: { offsetSec: 660 }
           }
         ]

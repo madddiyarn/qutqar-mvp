@@ -349,7 +349,7 @@ app.post("/api/connections/connect", asyncRoute(async (req, res) => {
     },
     create: {
       serialNumber,
-      name: count === 0 ? "QUTQAR-01" : `QUTQAR-${String(count + 1).padStart(2, "0")}`,
+      name: count === 0 ? "Boltzzmann-01" : `Boltzzmann-${String(count + 1).padStart(2, "0")}`,
       model: input.model,
       status: "ONLINE",
       battery: 87,
@@ -450,7 +450,7 @@ app.post("/api/drones/connect", asyncRoute(async (req, res) => {
   const drone = await prisma.drone.upsert({
     where: { serialNumber: input.serialNumber },
     update: {
-      name: input.name ?? "QUTQAR-01",
+      name: input.name ?? "Boltzzmann-01",
       model: profile.model,
       station: input.station ?? "Спасательная станция 7А",
       status: "ONLINE",
@@ -464,7 +464,7 @@ app.post("/api/drones/connect", asyncRoute(async (req, res) => {
     },
     create: {
       serialNumber: input.serialNumber,
-      name: input.name ?? "QUTQAR-01",
+      name: input.name ?? "Boltzzmann-01",
       model: profile.model,
       station: input.station ?? "Спасательная станция 7А",
       status: "ONLINE",
@@ -767,7 +767,7 @@ app.post("/api/demo/search-scenario", asyncRoute(async (_req, res) => {
   await prisma.targetSighting.createMany({
     data: [
       { searchMissionId: mission.id, sourceType: "Camera", sourceId: "CAM-04", latitude: 43.629, longitude: 51.151, timestamp: new Date(Date.now() - 70 * 60 * 1000), confidence: 74, metadata: { label: "18:21 Camera 04" } },
-      { searchMissionId: mission.id, sourceType: "Drone", sourceId: "QUTQAR-01", latitude: 43.624, longitude: 51.155, timestamp: new Date(Date.now() - 61 * 60 * 1000), confidence: 84, metadata: { label: "18:27 Drone QUTQAR-01" } },
+      { searchMissionId: mission.id, sourceType: "Drone", sourceId: "Boltzzmann-01", latitude: 43.624, longitude: 51.155, timestamp: new Date(Date.now() - 61 * 60 * 1000), confidence: 84, metadata: { label: "18:27 Drone Boltzzmann-01" } },
       { searchMissionId: mission.id, sourceType: "Search detection", sourceId: candidate.id, latitude: candidate.latitude, longitude: candidate.longitude, timestamp: candidate.detectedAt, confidence: 86, metadata: { label: "POSSIBLE MATCH #03" } }
     ]
   });
@@ -831,7 +831,7 @@ app.use((error: unknown, _req: express.Request, res: express.Response, _next: ex
 
 if (process.env.VERCEL !== "1") {
   httpServer.listen(env.port, () => {
-    console.log(`QUTQAR API listening on http://localhost:${env.port}`);
+    console.log(`Boltzzmann API listening on http://localhost:${env.port}`);
   });
 }
 

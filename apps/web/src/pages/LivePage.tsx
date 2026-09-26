@@ -91,7 +91,7 @@ export function LivePage() {
     <div className="min-h-[calc(100vh-58px)] bg-[#F2F0E9] p-3">
       <section className="ops-panel mb-3 flex flex-wrap items-center justify-between gap-4 p-3">
         <div>
-          <p className="ops-label">DRN / Q-01 · COASTAL GROUND CONTROL</p>
+          <p className="ops-label">DRN / B-01 · COASTAL GROUND CONTROL</p>
           <h1 className="text-2xl font-extrabold">Live Operations</h1>
         </div>
         <div className="flex flex-wrap gap-2 text-sm">
@@ -126,7 +126,7 @@ export function LivePage() {
                 <div className="flex items-center gap-3 text-[#D92D20]">
                   <ShieldAlert size={28} />
                   <div>
-                    <div className="ops-label text-[#D92D20]">QUTQAR VISION ALERT</div>
+                    <div className="ops-label text-[#D92D20]">Boltzzmann VISION ALERT</div>
                     <div className="text-2xl font-extrabold">Вероятность {confidence}%</div>
                   </div>
                 </div>
@@ -137,7 +137,7 @@ export function LivePage() {
             <Telemetry label="ALT" value="79M" detail="BARO SIM" />
             <Telemetry label="SPD" value="8.6M/S" detail="GROUND" />
             <Telemetry label="HDG" value="187°" detail="TRUE" />
-            <Telemetry label="BAT" value="84%" detail="Q-01" />
+            <Telemetry label="BAT" value="84%" detail="B-01" />
             <Telemetry label="LINK" value="98%" detail="MOCK DJI" />
             <Telemetry label="GPS" value="14 SAT" detail="READY" />
           </div>
@@ -147,7 +147,7 @@ export function LivePage() {
           <div className="ops-panel p-4">
             <div className="flex items-center justify-between">
               <div>
-                <div className="ops-label">QUTQAR VISION</div>
+                <div className="ops-label">Boltzzmann VISION</div>
                 <h2 className="font-extrabold">Distress Analysis</h2>
               </div>
               <span className="ops-label text-[#E7A928]">MOCK INFERENCE</span>

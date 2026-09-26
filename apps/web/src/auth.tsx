@@ -8,7 +8,7 @@ type AuthContextValue = {
   isController: boolean;
 };
 
-const storageKey = "qutqar.session";
+const storageKey = "boltzzmann.session";
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 function readStoredUser() {

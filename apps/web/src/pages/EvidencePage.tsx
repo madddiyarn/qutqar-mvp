@@ -38,7 +38,7 @@ export function EvidencePage() {
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <div className="mono text-sm text-muted">{selected.publicId}</div>
-                <h2 className="text-3xl font-extrabold">QUTQAR EMERGENCY REPORT</h2>
+                <h2 className="text-3xl font-extrabold">Boltzzmann EMERGENCY REPORT</h2>
               </div>
               <button className="btn" onClick={() => window.print()}><Printer size={16} /> Сформировать отчёт</button>
             </div>

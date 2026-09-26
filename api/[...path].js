@@ -52,15 +52,15 @@ var init_seed = __esm({
     prisma2 = new PrismaClient3();
     systemUsers = [
       {
-        name: "\u041D\u0430\u0434\u0437\u043E\u0440 QUTQAR",
+        name: "\u041D\u0430\u0434\u0437\u043E\u0440 Boltzzmann",
         role: "SUPERVISOR",
-        email: "nadzor@qutqar.kz",
+        email: "nadzor@boltzzmann.kz",
         passwordHash: "65fc349f7ead8012b8de5323e15c6e3b289517faf7098910e348453b9861573f"
       },
       {
-        name: "\u041A\u043E\u043D\u0442\u0440\u043E\u043B\u043B\u0435\u0440 QUTQAR",
+        name: "\u041A\u043E\u043D\u0442\u0440\u043E\u043B\u043B\u0435\u0440 Boltzzmann",
         role: "CONTROLLER",
-        email: "controller@qutqar.kz",
+        email: "controller@boltzzmann.kz",
         passwordHash: "2f7945c2bd522579a10a0fe818f7a8764f63344a5d41eedc43117990e909d794"
       }
     ];
@@ -123,7 +123,7 @@ async function analyzeIncident(prisma3, incident) {
     type: incident.type,
     severity: incident.severity ?? Severity.HIGH,
     location: `Sector 04 \xB7 ${incident.latitude.toFixed(4)}, ${incident.longitude.toFixed(4)}`,
-    evidence: `Drone QUTQAR-01 / frame 18:42:31`,
+    evidence: `Drone Boltzzmann-01 / frame 18:42:31`,
     recommendedResponse: recommendedType,
     nearestResponder: nearest?.name ?? "RESCUE-1",
     requiresOperatorConfirmation: true
@@ -138,12 +138,12 @@ async function createEvidencePackage(prisma3, incidentId) {
   if (existing) return existing;
   const publicId = `EV-${incident.publicId}`;
   const reportHtml = [
-    `<h1>QUTQAR EMERGENCY REPORT</h1>`,
+    `<h1>Boltzzmann EMERGENCY REPORT</h1>`,
     `<p><strong>INCIDENT</strong> ${incident.publicId}</p>`,
     `<p><strong>TYPE</strong> ${incident.type}</p>`,
     `<p><strong>SEVERITY</strong> ${incident.severity}</p>`,
     `<p><strong>LOCATION</strong> ${incident.latitude.toFixed(5)}, ${incident.longitude.toFixed(5)}</p>`,
-    `<p><strong>DRONE</strong> ${incident.drone?.name ?? "QUTQAR-01"}</p>`,
+    `<p><strong>DRONE</strong> ${incident.drone?.name ?? "Boltzzmann-01"}</p>`,
     `<p><strong>AI CONFIDENCE</strong> ${incident.confidence}%</p>`
   ].join("");
   const evidence = await prisma3.evidence.create({
@@ -153,7 +153,7 @@ async function createEvidencePackage(prisma3, incidentId) {
       reportHtml,
       qrPayload: `/evidence?incident=${incident.publicId}`,
       metadata: {
-        source: "QUTQAR evidence service",
+        source: "Boltzzmann evidence service",
         isMockAssets: true,
         status: incident.status
       },
@@ -168,7 +168,7 @@ async function createEvidencePackage(prisma3, incidentId) {
           {
             type: "VIDEO_CLIP",
             label: "Playback clip reference",
-            url: "/demo/qutqar-coastline-playback.mp4",
+            url: "/demo/boltzzmann-coastline-playback.mp4",
             metadata: { offsetSec: 660 }
           }
         ]
@@ -711,7 +711,7 @@ app.post("/api/connections/connect", asyncRoute(async (req, res) => {
     },
     create: {
       serialNumber,
-      name: count === 0 ? "QUTQAR-01" : `QUTQAR-${String(count + 1).padStart(2, "0")}`,
+      name: count === 0 ? "Boltzzmann-01" : `Boltzzmann-${String(count + 1).padStart(2, "0")}`,
       model: input.model,
       status: "ONLINE",
       battery: 87,
@@ -803,7 +803,7 @@ app.post("/api/drones/connect", asyncRoute(async (req, res) => {
   const drone = await prisma.drone.upsert({
     where: { serialNumber: input.serialNumber },
     update: {
-      name: input.name ?? "QUTQAR-01",
+      name: input.name ?? "Boltzzmann-01",
       model: profile.model,
       station: input.station ?? "\u0421\u043F\u0430\u0441\u0430\u0442\u0435\u043B\u044C\u043D\u0430\u044F \u0441\u0442\u0430\u043D\u0446\u0438\u044F 7\u0410",
       status: "ONLINE",
@@ -817,7 +817,7 @@ app.post("/api/drones/connect", asyncRoute(async (req, res) => {
     },
     create: {
       serialNumber: input.serialNumber,
-      name: input.name ?? "QUTQAR-01",
+      name: input.name ?? "Boltzzmann-01",
       model: profile.model,
       station: input.station ?? "\u0421\u043F\u0430\u0441\u0430\u0442\u0435\u043B\u044C\u043D\u0430\u044F \u0441\u0442\u0430\u043D\u0446\u0438\u044F 7\u0410",
       status: "ONLINE",
@@ -1102,7 +1102,7 @@ app.post("/api/demo/search-scenario", asyncRoute(async (_req, res) => {
   await prisma.targetSighting.createMany({
     data: [
       { searchMissionId: mission.id, sourceType: "Camera", sourceId: "CAM-04", latitude: 43.629, longitude: 51.151, timestamp: new Date(Date.now() - 70 * 60 * 1e3), confidence: 74, metadata: { label: "18:21 Camera 04" } },
-      { searchMissionId: mission.id, sourceType: "Drone", sourceId: "QUTQAR-01", latitude: 43.624, longitude: 51.155, timestamp: new Date(Date.now() - 61 * 60 * 1e3), confidence: 84, metadata: { label: "18:27 Drone QUTQAR-01" } },
+      { searchMissionId: mission.id, sourceType: "Drone", sourceId: "Boltzzmann-01", latitude: 43.624, longitude: 51.155, timestamp: new Date(Date.now() - 61 * 60 * 1e3), confidence: 84, metadata: { label: "18:27 Drone Boltzzmann-01" } },
       { searchMissionId: mission.id, sourceType: "Search detection", sourceId: candidate.id, latitude: candidate.latitude, longitude: candidate.longitude, timestamp: candidate.detectedAt, confidence: 86, metadata: { label: "POSSIBLE MATCH #03" } }
     ]
   });
@@ -1158,7 +1158,7 @@ app.use((error, _req, res, _next) => {
 });
 if (process.env.VERCEL !== "1") {
   httpServer.listen(env.port, () => {
-    console.log(`QUTQAR API listening on http://localhost:${env.port}`);
+    console.log(`Boltzzmann API listening on http://localhost:${env.port}`);
   });
 }
 var index_default = app;

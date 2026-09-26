@@ -4,8 +4,8 @@ import { useAuth } from "../auth";
 import { api } from "../services/api";
 
 const quickAccounts = [
-  { label: "Надзор", email: "nadzor@qutqar.kz", password: "nadzor2026" },
-  { label: "Контроллер", email: "controller@qutqar.kz", password: "controller2026" }
+  { label: "Надзор", email: "nadzor@boltzzmann.kz", password: "nadzor2026" },
+  { label: "Контроллер", email: "controller@boltzzmann.kz", password: "controller2026" }
 ];
 
 export function LoginPage() {
@@ -36,7 +36,7 @@ export function LoginPage() {
           <div className="grid h-14 w-14 place-items-center cut-corner bg-[#087F73] text-white">
             <ShieldCheck size={28} />
           </div>
-          <div className="ops-label mt-8">QUTQAR / ACCESS CONTROL</div>
+          <div className="ops-label mt-8">Boltzzmann / ACCESS CONTROL</div>
           <h1 className="mt-2 text-4xl font-extrabold">Вход в систему</h1>
           <p className="mt-4 max-w-md text-muted">
             Надзор получает доступ к оперативной картине. Контроллер получает полный доступ к созданию, редактированию и удалению данных.

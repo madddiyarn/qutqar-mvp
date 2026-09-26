@@ -1,6 +1,6 @@
-# QUTQAR MVP
+# Boltzzmann MVP
 
-QUTQAR is a working hackathon MVP for an AI-assisted coastal safety and drone operations command center in Aktau, Kazakhstan.
+Boltzzmann is a working hackathon MVP for an AI-assisted coastal safety and drone operations command center in Aktau, Kazakhstan.
 
 This is an operational web application, not a landing page.
 
@@ -186,7 +186,7 @@ Fast deterministic path:
    - mocked DJI Avata 2 session
    - mocked live detection
    - potential drowning incident
-   - QUTQAR AI dispatcher analysis
+   - Boltzzmann AI dispatcher analysis
    - PostgreSQL incident/events
    - evidence package
    - print job `QUEUED -> PRINTING -> PRINTED`
