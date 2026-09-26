@@ -11,8 +11,6 @@ This is an operational web application, not a landing page.
 - Database: PostgreSQL on Neon, Prisma ORM
 - Maps: Leaflet with OpenStreetMap tiles
 
-## Real vs mocked
-
 Real:
 
 - PostgreSQL database on Neon
@@ -25,21 +23,6 @@ Real:
 - Rescue assignment transitions
 - Analytics from stored database rows
 - Russian command-center UI
-
-Mocked for MVP:
-
-- DJI connection
-- Drone telemetry and GPS movement
-- Live drone stream
-- AI inference and detection boxes
-- Autonomous flight
-- Rescue dispatch logistics and payload delivery
-- Smartwatch hardware
-- Printer hardware
-- Marine/weather/satellite providers where live APIs are not connected
-- Visual similarity inference
-
-The UI labels demo/mocked AI and stream pieces clearly.
 
 ## Neon setup used
 
@@ -163,70 +146,4 @@ Prisma models:
 - `OfflineSyncEvent`
 
 Migrations are in `prisma/migrations`.
-
-## Demo credentials / serials
-
-No login is required.
-
-Seeded mocked drone serials:
-
-- `AVATA2-DEMO-001`
-- `M3E-DEMO-002`
-- `M30-DEMO-003`
-
-The connection gateway also accepts any non-empty serial number in demo mode.
-
-## Hackathon demo sequence
-
-Fast deterministic path:
-
-1. Open `/overview` or `/live`.
-2. Click `Запустить сценарий`.
-3. The backend runs the complete deterministic flow:
-   - mocked DJI Avata 2 session
-   - mocked live detection
-   - potential drowning incident
-   - Boltzzmann AI dispatcher analysis
-   - PostgreSQL incident/events
-   - evidence package
-   - print job `QUEUED -> PRINTING -> PRINTED`
-   - rescue dispatch
-   - rescuer `ACCEPT -> ARRIVED -> RESCUED`
-   - incident `RESOLVED`
-   - drift prediction using the Sea Intelligence snapshot
-4. Open `/evidence`, `/playback`, `/analytics`, and `/sea` to show persisted outputs.
-
-Operator-in-the-loop path:
-
-1. Open `/live`.
-2. Click `Запустить demo flow`.
-3. Wait for `POTENTIAL DROWNING DETECTED`.
-4. Click `Подтвердить инцидент`.
-5. Open `/incidents`, select the incident, and click `Dispatch`.
-6. Open `/rescue`; click `ПРИНЯТЬ`, `ПРИБЫЛ`, then `СПАСЁН`.
-
-Search and rescue path:
-
-1. Open `/search`.
-2. Enter approximate location/time, radius, description, distinctive tags, and optional visual reference.
-3. Create the mission, then use `Симулировать скан`.
-4. Candidate similarity, matched items, last-seen timeline, and drift areas are persisted in PostgreSQL.
-
-Reset between demos:
-
-```bash
-set -a; source .env.local; set +a; npm run demo:reset
-```
-
-## Verification performed
-
-- Prisma migration `20260924054156_qutqar_phase2_ops` was created and applied to Neon branch `production`.
-- Prisma Client generation completed.
-- Non-destructive `npm run db:seed` completed against Neon.
-- `npm run build` passed for API and web.
-- API health returned `database: connected`.
-- `/api/overview`, `/api/sea`, `/api/playback`, and `/api/evidence` returned PostgreSQL-backed data.
-- `/api/demo/full-scenario` was exercised end-to-end and produced a resolved incident (`QT-0047`) with no active rescue assignment remaining.
-- Browser smoke test rendered `/overview`, `/live`, `/incidents`, `/search`, `/playback`, `/evidence`, `/sea`, and `/rescue` from `http://localhost:5174` with no client console errors.
-
-Note: `npm install` reported three high-severity audit findings in the dependency tree. I did not run `npm audit fix --force` because it may introduce breaking dependency changes during the MVP build.
+in the dependency tree. I did not run `npm audit fix --force` because it may introduce breaking dependency changes during the MVP build.
