@@ -1,8 +1,6 @@
 import { Activity, Crosshair, FileText, LifeBuoy, PlayCircle, Radio, Route, Waves, Wind } from "lucide-react";
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { CommandMap } from "../components/CommandMap";
 import { StatusBadge } from "../components/StatusBadge";
 import { incidentStatusLabel, incidentTypeLabel } from "../i18n/ru";
 import { useOverview } from "../hooks/useOverview";
@@ -26,6 +24,7 @@ export function OverviewPage() {
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
   const [demoBusy, setDemoBusy] = useState(false);
   const [panelMessage, setPanelMessage] = useState<string | null>(null);
+  const [highlightVision, setHighlightVision] = useState(false);
   const activeIncidents = useMemo(() => data?.incidents.filter((incident) => !["RESOLVED", "FALSE_ALARM"].includes(incident.status)) ?? [], [data]);
 
   if (loading) return <div className="ops-panel m-4 p-6 text-muted">Загрузка командного центра...</div>;
@@ -33,18 +32,16 @@ export function OverviewPage() {
 
   return (
     <div className="qutqar-map-shell">
-      <div className="h-full min-h-[calc(100vh-98px)]">
-          <CommandMap
-            drones={data.drones}
-            incidents={data.incidents}
-            zones={data.zones}
-            rescuers={data.rescuers}
-            missions={data.missions}
-            driftPredictions={data.driftPredictions}
-            sightings={data.sightings}
-            selectedType={selectedType}
-            onIncidentClick={setSelectedIncident}
-          />
+      <div className="relative h-full min-h-[calc(100vh-98px)] overflow-hidden">
+        <img
+          src={highlightVision ? "/media/coast-highlight.png" : "/media/coast-original.png"}
+          alt="Coastal command center visual"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(23,32,30,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(23,32,30,0.08)_1px,transparent_1px)] bg-[length:54px_54px]" />
+        <div className="absolute left-4 top-4 z-[430] border border-line bg-[#FAF9F5]/90 px-3 py-2 font-mono text-xs font-bold">
+          SRC / coastal-camera-feed · {highlightVision ? "VISION HIGHLIGHT" : "RAW VIEW"}
+        </div>
       </div>
 
       <div className="map-overlay left-3 top-3 w-[min(560px,calc(100vw-104px))] p-3">
@@ -73,6 +70,13 @@ export function OverviewPage() {
             <PlayCircle size={15} /> Запустить сценарий
           </button>
         </div>
+        <button
+          className={`btn mb-3 w-full justify-between ${highlightVision ? "btn-primary" : ""}`}
+          onClick={() => setHighlightVision((value) => !value)}
+        >
+          <span>Highlight people and sea</span>
+          <span className="mono text-xs">{highlightVision ? "ON" : "OFF"}</span>
+        </button>
         <div className="grid grid-cols-4 gap-px bg-line text-xs">
           <OpsMetric label="DRN" value={data.stats.activeDrones} icon={<Radio size={14} />} />
           <OpsMetric label="INC" value={data.stats.activeIncidents} icon={<Crosshair size={14} />} critical={data.stats.activeIncidents > 0} />

@@ -24,7 +24,6 @@ export const api = {
   connectSession: (body: { model: string; method: "QR" | "DJI_APP" | "SERIAL"; serialNumber?: string }) =>
     request<DroneConnection>("/api/connections/connect", { method: "POST", body: JSON.stringify(body) }),
   disconnectSession: () => request("/api/connections/disconnect", { method: "POST" }),
-  sea: () => request<unknown>("/api/sea"),
   playback: () => request<Recording[]>("/api/playback"),
   evidence: () => request<Evidence[]>("/api/evidence"),
   createEvidence: (incidentId: string) => request<Evidence>(`/api/evidence/${incidentId}`, { method: "POST" }),

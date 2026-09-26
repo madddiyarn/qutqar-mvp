@@ -12,6 +12,7 @@ export function PlaybackPage() {
   const [toMinute, setToMinute] = useState(10);
   const [clipReady, setClipReady] = useState(false);
   const [overlay, setOverlay] = useState(true);
+  const [highlightVision, setHighlightVision] = useState(false);
   const [events, setEvents] = useState(true);
   const [mapSync, setMapSync] = useState(true);
 
@@ -78,18 +79,25 @@ export function PlaybackPage() {
             {recordings.map((recording) => <option key={recording.id} value={recording.id}>{recording.mission}</option>)}
           </select>
         </div>
-        <div className="relative mt-4 min-h-[460px] overflow-hidden rounded-2xl border border-line bg-[#dfeaf0]">
-          <div className="absolute inset-0 bg-[linear-gradient(135deg,#b8d9e7_0%,#d8ecf2_35%,#f4dfb8_36%,#f4dfb8_48%,#a9c6b9_49%,#d7e7ef_100%)]" />
-          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-[#99c7cf]/70" />
-          <div className="absolute left-4 top-4 rounded-2xl bg-white/90 px-3 py-2 font-mono text-xs font-bold">
+        <div className="relative mt-4 min-h-[520px] overflow-hidden rounded-[6px] border border-line bg-[#dfeaf0]">
+          <img
+            src={highlightVision ? "/media/coast-highlight.png" : "/media/coast-original.png"}
+            alt="Coastal playback frame"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(23,32,30,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(23,32,30,0.08)_1px,transparent_1px)] bg-[length:54px_54px]" />
+          <div className="absolute left-4 top-4 border border-line bg-[#FAF9F5]/90 px-3 py-2 font-mono text-xs font-bold">
             PRERECORDED · WINDOW {fromMinute}:00 - {Math.max(fromMinute + 1, toMinute)}:00
           </div>
-          {overlay && activeEvent?.type === "AI_ALERT" && (
-            <div className="absolute left-[42%] top-[31%] h-[26%] w-[18%] rounded border-2 border-[#d92d20] bg-[#d92d20]/5">
-              <div className="absolute -top-8 left-0 rounded bg-[#d92d20] px-2 py-1 font-mono text-xs font-bold text-white">AI OVERLAY · 91%</div>
+          <div className="absolute right-4 top-4 border border-line bg-[#FAF9F5]/90 px-3 py-2 font-mono text-xs font-bold">
+            {highlightVision ? "VISION / PEOPLE + SEA" : "RAW / CAMERA"}
+          </div>
+          {overlay && activeEvent?.type === "AI_ALERT" && !highlightVision && (
+            <div className="absolute left-[42%] top-[31%] h-[26%] w-[18%] border-2 border-[#FF5A36] bg-[#FF5A36]/5">
+              <div className="absolute -top-8 left-0 bg-[#FF5A36] px-2 py-1 font-mono text-xs font-bold text-white">AI OVERLAY · 91%</div>
             </div>
           )}
-          <div className="absolute bottom-4 left-4 right-4 rounded-2xl bg-white/92 p-4">
+          <div className="absolute bottom-4 left-4 right-4 border border-line bg-[#FAF9F5]/92 p-4">
             <input className="w-full accent-[#0f87a8]" type="range" min={fromSec} max={toSec} value={offset} onChange={(event) => setOffset(Number(event.target.value))} />
             <div className="mt-2 flex justify-between text-xs font-bold text-muted">
               <span>{fromMinute}:00</span><span className="mono">offset {offset}s</span><span>{Math.max(fromMinute + 1, toMinute)}:00</span>
@@ -97,6 +105,7 @@ export function PlaybackPage() {
           </div>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
+          <button className={`btn ${highlightVision ? "btn-primary" : ""}`} onClick={() => setHighlightVision(!highlightVision)}><Radar size={16} /> Highlight people and sea</button>
           <button className={`btn ${overlay ? "btn-primary" : ""}`} onClick={() => setOverlay(!overlay)}><Radar size={16} /> AI OVERLAY</button>
           <button className={`btn ${events ? "btn-primary" : ""}`} onClick={() => setEvents(!events)}>EVENTS</button>
           <button className={`btn ${mapSync ? "btn-primary" : ""}`} onClick={() => setMapSync(!mapSync)}>MAP SYNC</button>

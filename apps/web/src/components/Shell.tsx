@@ -1,4 +1,4 @@
-import { Archive, Bell, Bot, ChartNoAxesCombined, Crosshair, Database, Drone, FileText, LifeBuoy, LogOut, Map, Radio, Search, Settings, ShieldCheck, ShipWheel } from "lucide-react";
+import { Archive, Bell, Bot, ChartNoAxesCombined, Crosshair, Database, Drone, FileText, LifeBuoy, LogOut, Map, Radio, Search, Settings, ShieldCheck } from "lucide-react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { useOverview } from "../hooks/useOverview";
@@ -14,7 +14,6 @@ const nav = [
   { to: "/patrols", label: "Патрули", icon: ShieldCheck, section: "" },
   { to: "/playback", label: "Архив / Playback", icon: Archive, section: "АНАЛИЗ" },
   { to: "/evidence", label: "Доказательства", icon: FileText, section: "" },
-  { to: "/sea", label: "Море", icon: ShipWheel, section: "" },
   { to: "/analytics", label: "Аналитика", icon: ChartNoAxesCombined, section: "" },
   { to: "/drones", label: "Дроны", icon: Drone, section: "СИСТЕМА" }
 ];
